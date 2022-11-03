@@ -1,0 +1,33 @@
+import { GenericResponseType } from "src/apps/casesend/model/GenericResonseType";
+import { CommonResponse } from "src/apps/casesend/model/response";
+import { ResponseCode } from "src/apps/casesend/model/responsecode";
+import { ResponseStatusType } from "src/apps/casesend/model/responsestatustype";
+
+export class ResponseUtils {
+
+    static exceptionResponse(remark: string): CommonResponse {
+        return this.errorResponse(remark, ResponseCode.REQUESTED_HANDLE_EXCEPTION);
+    }
+
+    static errorResponse(remark: string, responseCode: Number): CommonResponse {
+        return this.create(this.responseStatus(remark, responseCode), null);
+    }
+
+    static successResponse<T>(body: T): CommonResponse {
+        return this.create(this.responseStatus("success", ResponseCode.SUCCESS), body);
+    }
+
+
+    private static create<T>(statusType: ResponseStatusType, body: T): CommonResponse {
+        return new GenericResponseType(statusType, body);
+    }
+
+    private static responseStatus(remark: string, responseCode: Number): ResponseStatusType {
+        let timestamp = Date.parse(new Date().toString());
+        return new ResponseStatusType(responseCode, remark, timestamp);
+    }
+
+
+
+
+}

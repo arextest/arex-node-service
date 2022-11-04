@@ -5,8 +5,8 @@ import { CaseResult } from "../../test/model/caseresult";
 import { CaseSendRequest } from "../model/casesendrequest";
 import { CaseSendResponse } from "../model/casesendresponse";
 import { CaseStatus } from "../model/casestatus";
-import { BuildSendTaskSerive } from "./buildSendTask.servce";
 import { CaseHandleService } from "./casehandle.service";
+import { BuildSendTaskSerive } from "./buildSendTask.servce";
 
 @Injectable()
 export class NoramlCaseHandleService extends CaseHandleService {

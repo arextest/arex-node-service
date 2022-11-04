@@ -1,11 +1,11 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { forkJoin } from "rxjs";
-import { TestService } from "src/apps/test/test.service";
-import { ResponseUtils } from "src/utils/ResponseUtils";
+import { TestService } from "../../test/test.service";
 import { CaseResult } from "../../test/model/caseresult";
 import { CaseSendRequest } from "../model/casesendrequest";
 import { CommonResponse } from "../model/response";
 import { CaseHandleFactoryService } from "./casehandlefactory.service";
+import { ResponseUtils } from "../../utils/responseutils";
 
 @Injectable()
 export class CaseSendService {

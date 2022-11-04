@@ -1,4 +1,3 @@
-import { Address } from "./address";
 import { KeyValuePairType } from "./keyvaluepairType";
 
 export class CaseSendResponse {

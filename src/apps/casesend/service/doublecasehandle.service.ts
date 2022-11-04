@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { CaseResult } from "src/apps/test/model/caseresult";
-import { TestService } from "src/apps/test/test.service";
+import { CaseResult } from "../../test/model/caseresult";
+import { TestService } from "../../test/test.service";
 import { CaseSendRequest } from "../model/casesendrequest";
 import { CaseSendResponse } from "../model/casesendresponse";
 import { CaseStatus } from "../model/casestatus";

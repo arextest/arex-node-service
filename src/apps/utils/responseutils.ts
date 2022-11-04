@@ -1,7 +1,7 @@
-import { GenericResponseType } from "src/apps/casesend/model/GenericResonseType";
-import { CommonResponse } from "src/apps/casesend/model/response";
-import { ResponseCode } from "src/apps/casesend/model/responsecode";
-import { ResponseStatusType } from "src/apps/casesend/model/responsestatustype";
+import { GenericResponseType } from "../casesend/model/genericresonsetype";
+import { CommonResponse } from "../casesend/model/response";
+import { ResponseCode } from "../casesend/model/responsecode";
+import { ResponseStatusType } from "../casesend/model/responsestatustype";
 
 export class ResponseUtils {
 
@@ -26,8 +26,4 @@ export class ResponseUtils {
         let timestamp = Date.parse(new Date().toString());
         return new ResponseStatusType(responseCode, remark, timestamp);
     }
-
-
-
-
 }

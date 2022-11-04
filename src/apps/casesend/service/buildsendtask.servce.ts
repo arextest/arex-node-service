@@ -2,9 +2,9 @@ import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable } from "@nestjs/common";
 import { AxiosRequestHeaders } from 'axios';
 import { catchError, map, Observable, of, timeout } from "rxjs";
-import { Address } from "src/apps/casesend/model/address";
-import { BodyType } from "src/apps/casesend/model/bodytype";
-import { KeyValuePairType } from "src/apps/casesend/model/keyvaluepairType";
+import { Address } from "../model/address";
+import { BodyType } from "../model/bodytype";
+import { KeyValuePairType } from "../model/keyvaluepairType";
 
 @Injectable()
 export class BuildSendTaskSerive {

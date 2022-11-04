@@ -6,7 +6,7 @@ import { TestModule } from '../test/test.module';
 import { NoramlCaseHandleService } from './service/noramlcasehandle.service';
 import { DoubleCaseHandleService } from './service/doublecasehandle.service';
 import { CaseHandleFactoryService } from './service/casehandlefactory.service';
-import { BuildSendTaskSerive } from './service/buildSendTask.servce';
+import { BuildSendTaskSerive } from './service/buildsendtask.servce';
 
 @Module({
   imports: [HttpModule, TestModule],

@@ -5,7 +5,7 @@ import { TestService } from "../../test/test.service";
 import { CaseSendRequest } from "../model/casesendrequest";
 import { CaseSendResponse } from "../model/casesendresponse";
 import { CaseStatus } from "../model/casestatus";
-import { BuildSendTaskSerive } from "./buildSendTask.servce";
+import { BuildSendTaskSerive } from "./buildsendtask.servce";
 import { CaseHandleService } from "./casehandle.service";
 
 @Injectable()

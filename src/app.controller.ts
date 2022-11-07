@@ -10,13 +10,5 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
-
-  // @Post("setCat")
-  // setCat(@Body() cat: Cat): Cat {
-
-  //   console.log(cat);
-  //   cat.objct.name = 18 + '';
-  //   return cat;
-  // }
-
+  
 }

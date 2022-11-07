@@ -45,7 +45,7 @@ export class NoramlCaseHandleService extends CaseHandleService {
     }
 
     public backFillRelatedInfo(caseSendResponse: CaseSendResponse, caseSendRequest: CaseSendRequest) {
-        caseSendResponse.url = caseSendRequest.address.url;
+        caseSendResponse.url = caseSendRequest.address.endpoint;
         caseSendResponse.headers = caseSendRequest.headers;
         caseSendResponse.request = caseSendRequest.body.body;
     }

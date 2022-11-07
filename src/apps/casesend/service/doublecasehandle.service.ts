@@ -54,8 +54,8 @@ export class DoubleCaseHandleService extends CaseHandleService {
     }
 
     public backFillRelatedInfo(caseSendResponse: CaseSendResponse, caseSendRequest: CaseSendRequest) {
-        caseSendResponse.baseUrl = caseSendRequest.baseAddress.url;
-        caseSendResponse.testUrl = caseSendRequest.testAddress.url;
+        caseSendResponse.baseUrl = caseSendRequest.baseAddress.endpoint;
+        caseSendResponse.testUrl = caseSendRequest.testAddress.endpoint;
 
         caseSendResponse.headers = caseSendRequest.headers;
         caseSendResponse.request = caseSendRequest.body.body;

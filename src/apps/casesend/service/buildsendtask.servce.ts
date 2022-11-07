@@ -29,7 +29,7 @@ export class BuildSendTaskSerive {
 
     public sendGetRequest(headerArray: Array<KeyValuePairType>, body: BodyType, address: Address): Observable<any> {
         let customHeader = this.getHeaders(headerArray, body);
-        return this.httpService.get(address.url, { headers: customHeader }).pipe(
+        return this.httpService.get(address.endpoint, { headers: customHeader }).pipe(
             map(res => {
                 return { "status": res.status, "statusText": res.statusText, "headers": res.headers, "body": res.data };
             }),
@@ -40,7 +40,7 @@ export class BuildSendTaskSerive {
 
     public sendPostRequest(headerArray: Array<KeyValuePairType>, body: BodyType, address: Address): Observable<any> {
         let customHeader = this.getHeaders(headerArray, body)
-        return this.httpService.post(address.url, body.body, { headers: customHeader }).pipe(
+        return this.httpService.post(address.endpoint, body.body, { headers: customHeader }).pipe(
             map(res => {
                 return { "status": res.status, "statusText": res.statusText, "headers": res.headers, "body": res.data };
             }),

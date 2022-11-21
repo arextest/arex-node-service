@@ -1,18 +1,18 @@
 import { Observable } from "rxjs";
 import { CaseResult } from "../../test/model/caseresult";
-import { CaseSendRequest } from "../model/casesendrequest";
+import { CaseRequest } from "../model/caserequest";
 import { CaseSendResponse } from "../model/casesendresponse";
 import { CaseStatus } from "../model/casestatus";
 
 export abstract class CaseHandleService {
 
-    abstract isSupport(caseSendRequest: CaseSendRequest): boolean;
+    abstract isSupport(caseRequest: CaseRequest): boolean;
 
-    abstract buildSendTasks(caseSendRequest: CaseSendRequest): Array<Observable<any>>;
+    abstract buildSendTasks(caseRequest: CaseRequest): Array<Observable<any>>;
 
-    abstract processSendResponse(res: Array<any>, testScript: string, caseTestResult: CaseResult): Promise<CaseSendResponse>;
+    abstract processSendResponse(res: Array<any>, req: CaseRequest, testScript: string, caseTestResult: CaseResult): Promise<CaseSendResponse>;
 
-    abstract backFillRelatedInfo(caseSendResponse: CaseSendResponse, caseSendRequest: CaseSendRequest)
+    abstract backFillRelatedInfo(caseSendResponse: CaseSendResponse, caseRequest: CaseRequest)
 
     judgeCaseStatus(caseResult: CaseResult): Number {
         let caseStatus = CaseStatus.NO_PROBLEM;

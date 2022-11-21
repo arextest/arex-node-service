@@ -12,9 +12,9 @@ export class ProprecessService {
 
         if (caseRequest.baseAddress) {
             caseRequest.baseAddress.endpoint = this.urlPretreatment(caseRequest.baseAddress.endpoint, envList,
-                (runEnv: RunEnv) => runEnv.baseValue);
+                (runEnv: RunEnv) => runEnv.value);
             caseRequest.testAddress.endpoint = this.urlPretreatment(caseRequest.testAddress.endpoint, envList,
-                (runEnv: RunEnv) => runEnv.testValue);
+                (runEnv: RunEnv) => runEnv.value);
         } else {
             caseRequest.address.endpoint = this.urlPretreatment(caseRequest.address.endpoint, envList,
                 (runEnv: RunEnv) => runEnv.value);

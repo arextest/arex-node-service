@@ -2,7 +2,7 @@ import {
   Body, Controller, Inject,
   Post
 } from '@nestjs/common';
-import { TestService } from './test.service';
+import { TestService } from './service/test.service';
 
 @Controller('test')
 export class TestController {
@@ -59,7 +59,7 @@ export class TestController {
     //  });
     // `;
 
-    return this.testService.runTestScript({ code, response });
+    return this.testService.runTestScript(code, { response: response });
 
   }
 }

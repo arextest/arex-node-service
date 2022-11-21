@@ -42,8 +42,6 @@ export class PreTestService {
         for (let index = 0; index < envList.length; index++) {
             const element = envList[index];
             mapEnv.set(element.key, element.value);
-            mapEnv.setBaseValue(element.key, element.baseValue);
-            mapEnv.setTestValue(element.key, element.testValue);
         }
         return mapEnv;
     }

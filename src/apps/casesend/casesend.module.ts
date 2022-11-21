@@ -7,10 +7,11 @@ import { NoramlCaseHandleService } from './service/noramlcasehandle.service';
 import { DoubleCaseHandleService } from './service/doublecasehandle.service';
 import { CaseHandleFactoryService } from './service/casehandlefactory.service';
 import { BuildSendTaskSerive } from './service/buildsendtask.servce';
+import { ProprecessService } from './service/preprocess.service';
 
 @Module({
   imports: [HttpModule, TestModule],
   controllers: [CaseSendController],
-  providers: [CaseSendService, CaseHandleFactoryService, NoramlCaseHandleService, DoubleCaseHandleService, BuildSendTaskSerive]
+  providers: [CaseSendService, ProprecessService, CaseHandleFactoryService, NoramlCaseHandleService, DoubleCaseHandleService, BuildSendTaskSerive]
 })
 export class CaseSendModule { }

@@ -1,9 +1,10 @@
+import { AxiosRequestConfig } from 'axios';
 import { CaseResult } from "../model/caseresult";
 import { ExecScriptResult } from "../model/execscriptresult";
 import { TestField } from "../model/testfield";
-import { AxiosRequestConfig } from 'axios';
 const vm = require('vm');
 const axios = require('axios');
+const mysql = require('mysql2/promise');
 
 
 class Pw extends TestField {
@@ -160,6 +161,43 @@ class Pw extends TestField {
       }
     }
   }
+
+  async executeMySql(connectConfig: { host: string, port: string, user: string, password: string, database: string, multipleStatements?: boolean },
+    executeBody: { sql: string, params?: [unknown] }, callback) {
+
+    let db = undefined
+    try {
+      db = await mysql.createConnection({ host: '10.5.153.1', port: "13306", user: "root", password: "", database: "test", multipleStatements: true });
+    } catch (error) {
+      try {
+        callback(error, undefined);
+      } catch (error) {
+        console.log("have problem");
+      }
+      return;
+    }
+
+    let res1 = undefined;
+
+    try {
+      res1 = await db.query(executeBody.sql, executeBody.params);
+      await db.end();
+    } catch (error) {
+      try {
+        callback(error, undefined);
+      } catch (error) {
+        console.log("have problem");
+      }
+      await db.end();
+      return;
+    }
+
+    try {
+      callback(null, res1[0]);
+    } catch (error) {
+      console.log("have problem");
+    }
+  }
 }
 
 export function execTestScript(code: string, testField: TestField): Promise<ExecScriptResult> {
@@ -169,11 +207,10 @@ export function execTestScript(code: string, testField: TestField): Promise<Exec
       arex: pw,
       console: console,
       JSON: JSON,
-      axios: axios,
     };
 
     const testPromise = vm.runInNewContext(code, sandbox);
-    if (testPromise) {
+    if (testPromise instanceof Promise) {
       testPromise.then(() => {
         resolve({ caseResult: pw.getCaseResult(), environment: pw.environment });
       }).catch((err) => {
@@ -183,7 +220,7 @@ export function execTestScript(code: string, testField: TestField): Promise<Exec
       resolve({ caseResult: pw.getCaseResult(), environment: pw.environment });
     }
   });
-  
+
 }
 
 

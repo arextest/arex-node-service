@@ -13,25 +13,25 @@ export class PreTestService {
     private readonly testService: TestService;
 
 
-    async runPreTestScript(caserequest: CaseRequest, envList: Array<RunEnv>, preTestScripts: Array<string>): Promise<PreTestScriptResponse> {
-        let envMap = this.runEnvList2EnvMap(envList);
-        let multiScriptresult = new ExecScriptResult();
-        for (let index = 0; index < preTestScripts.length; index++) {
-            const element = preTestScripts[index];
-            let execScriptResult = undefined;
-            try {
-                execScriptResult = await this.testService.runTestScript(element, { request: caserequest, environment: envMap });
-            } catch (error) {
-                throw error;
+    runPreTestScript(caserequest: CaseRequest, envList: Array<RunEnv>, preTestScripts: Array<string>): Promise<PreTestScriptResponse> {
+
+        return new Promise(async (resolve, reject) => {
+            let multiScriptresult = new ExecScriptResult();
+            let envMap = this.runEnvList2EnvMap(envList);
+
+            for (let index = 0; index < preTestScripts.length; index++) {
+                const element = preTestScripts[index];
+                try {
+                    let execScriptResult = await this.testService.runTestScript(element, { request: caserequest, environment: envMap });
+                    multiScriptresult.caseResult.children.push(...execScriptResult.caseResult.children);
+                } catch (error) {
+                    reject(error);
+                    return;
+                }
             }
-            multiScriptresult.caseResult.children.push(...execScriptResult.caseResult.children);
-        }
-        // process.on("uncaughtException", function (err, origin) {
-        //     console.log(origin)
-        //     console.log(err);
-        // });
-        multiScriptresult.environment = envMap;
-        return this.buildPreTestScriptResponse(caserequest, multiScriptresult);
+            multiScriptresult.environment = envMap;
+            resolve(this.buildPreTestScriptResponse(caserequest, multiScriptresult));
+        })
     }
 
     private runEnvList2EnvMap(envList: Array<RunEnv>): MapEnv {
@@ -55,7 +55,7 @@ export class PreTestService {
         }
     }
 
-    private buildPreTestScriptResponse(caserequest: CaseRequest, multiScriptresult: ExecScriptResult): Promise<PreTestScriptResponse> {
+    private buildPreTestScriptResponse(caserequest: CaseRequest, multiScriptresult: ExecScriptResult): PreTestScriptResponse {
         let pretestscriptresponse = new PreTestScriptResponse();
         pretestscriptresponse.address = caserequest.address;
         pretestscriptresponse.headers = caserequest.headers;
@@ -64,7 +64,7 @@ export class PreTestService {
         pretestscriptresponse.testAddress = caserequest.testAddress;
         pretestscriptresponse.envList = this.envMap2RunEnvList(multiScriptresult.environment);
         pretestscriptresponse.caseResult = multiScriptresult.caseResult;
-        return Promise.resolve(pretestscriptresponse);
+        return pretestscriptresponse;
     }
 
 }

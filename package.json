@@ -30,6 +30,7 @@
     "colors": "^1.4.0",
     "moment": "^2.29.4",
     "mongoose": "^6.6.5",
+    "mysql2": "^2.3.3",
     "postman-sandbox": "^4.1.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

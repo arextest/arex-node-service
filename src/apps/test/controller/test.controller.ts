@@ -1,6 +1,5 @@
 import {
-  Body, Controller, Inject,
-  Post
+  Body, Controller, Inject, Post
 } from '@nestjs/common';
 import { CaseRequest } from 'src/apps/casesend/model/caserequest';
 import { ResponseUtils } from 'src/apps/utils/responseutils';
@@ -16,8 +15,6 @@ export class TestController {
 
   @Inject()
   private readonly preTestService: PreTestService;
-
-  // private readonly preTestS
 
   @Post("/test")
   async runTestScript(@Body() body) {

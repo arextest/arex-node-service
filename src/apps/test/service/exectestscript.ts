@@ -1,10 +1,12 @@
 import { AxiosRequestConfig } from 'axios';
+import { LoggerService } from '../../../logger.service';
 import { CaseResult } from "../model/caseresult";
 import { ExecScriptResult } from "../model/execscriptresult";
 import { TestField } from "../model/testfield";
 const vm = require('vm');
 const axios = require('axios');
 const mysql = require('mysql2/promise');
+const logService = new LoggerService(execTestScript.name);
 
 
 class Pw extends TestField {
@@ -128,15 +130,16 @@ class Pw extends TestField {
         try {
           callback(err, null);
         } catch (error) {
-          console.log("have problem");
+          logService.error(error.message);
         }
-
         return;
+
       }
+
       try {
         callback(null, response);
       } catch (error) {
-        console.log("have problem");
+        logService.error(error.message);
       }
 
     } else {
@@ -149,16 +152,18 @@ class Pw extends TestField {
         try {
           callback(err, null);
         } catch (error) {
-          console.log("have problem");
+          logService.error(error.message);
         }
-
         return;
+
       }
+
       try {
         callback(null, response);
       } catch (error) {
-        console.log("have problem");
+        logService.error(error.message);
       }
+
     }
   }
 
@@ -167,7 +172,7 @@ class Pw extends TestField {
 
     let db = undefined
     try {
-      db = await mysql.createConnection({ host: '10.5.153.1', port: "13306", user: "root", password: "", database: "test", multipleStatements: true });
+      db = await mysql.createConnection(connectConfig);
     } catch (error) {
       try {
         callback(error, undefined);

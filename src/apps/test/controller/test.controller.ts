@@ -1,16 +1,22 @@
 import {
-  Body, Controller, Inject,
-  Post
+  Body, Controller, Inject, Post
 } from '@nestjs/common';
-import { TestService } from './test.service';
+import { CaseRequest } from '../../casesend/model/caserequest';
+import { ResponseUtils } from '../../utils/responseutils';
+import { PreTestScriptRequest } from '../model/pretestscriptrequest';
+import { PreTestService } from '../service/pretest.service';
+import { TestService } from '../service/test.service';
 
-@Controller('test')
+@Controller()
 export class TestController {
 
   @Inject()
   private readonly testService: TestService;
 
-  @Post()
+  @Inject()
+  private readonly preTestService: PreTestService;
+
+  @Post("/test")
   async runTestScript(@Body() body) {
 
     const { code, response } = body;
@@ -59,7 +65,34 @@ export class TestController {
     //  });
     // `;
 
-    return this.testService.runTestScript({ code, response });
+    return this.testService.runTestScript(code, { response: response });
 
   }
+
+  @Post("/preTest")
+  async runPreTestScript(@Body() preTestScriptRequest: PreTestScriptRequest) {
+    if (preTestScriptRequest.preTestScripts === undefined || preTestScriptRequest.preTestScripts === null ||
+      preTestScriptRequest.preTestScripts.length === 0) {
+      return ResponseUtils.exceptionResponse("preTest")
+    }
+
+    let caseRequest = this.buildRequest(preTestScriptRequest)
+    try {
+      let PreTestScriptResponse = await this.preTestService.runPreTestScript(caseRequest, preTestScriptRequest.envList, preTestScriptRequest.preTestScripts);
+      return ResponseUtils.successResponse(PreTestScriptResponse);
+    } catch (error) {
+      return ResponseUtils.exceptionResponse(error.message);
+    }
+  }
+
+  private buildRequest(preTestScriptRequest: PreTestScriptRequest): CaseRequest {
+    let caserequest = new CaseRequest();
+    caserequest.address = preTestScriptRequest.address;
+    caserequest.headers = preTestScriptRequest.headers;
+    caserequest.body = preTestScriptRequest.body;
+    caserequest.baseAddress = preTestScriptRequest.baseAddress;
+    caserequest.testAddress = preTestScriptRequest.testAddress;
+    return caserequest;
+  }
+
 }

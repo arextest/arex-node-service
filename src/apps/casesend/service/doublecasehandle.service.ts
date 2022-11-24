@@ -1,10 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { CaseResult } from "../../test/model/caseresult";
-import { TestService } from "../../test/test.service";
-import { CaseSendRequest } from "../model/casesendrequest";
+import { TestService } from "../../test/service/test.service";
+import { CaseRequest } from "../model/caserequest";
 import { CaseSendResponse } from "../model/casesendresponse";
-import { CaseStatus } from "../model/casestatus";
 import { BuildSendTaskSerive } from "./buildsendtask.servce";
 import { CaseHandleService } from "./casehandle.service";
 
@@ -17,48 +16,48 @@ export class DoubleCaseHandleService extends CaseHandleService {
     @Inject()
     private readonly testService: TestService;
 
-    isSupport(caseSendRequest: CaseSendRequest): boolean {
-        return caseSendRequest.baseAddress !== undefined;
+    isSupport(caseRequest: CaseRequest): boolean {
+        return caseRequest.baseAddress !== undefined;
     }
 
 
-    public buildSendTasks(caseSendRequest: CaseSendRequest): Observable<any>[] {
+    public buildSendTasks(caseRequest: CaseRequest): Observable<any>[] {
         let sendTasks = [];
-        sendTasks.push(this.buildSendTaskSerive.sendRequest(caseSendRequest.headers, caseSendRequest.body, caseSendRequest.baseAddress));
-        sendTasks.push(this.buildSendTaskSerive.sendRequest(caseSendRequest.headers, caseSendRequest.body, caseSendRequest.testAddress));
+        sendTasks.push(this.buildSendTaskSerive.sendRequest(caseRequest.headers, caseRequest.body, caseRequest.baseAddress));
+        sendTasks.push(this.buildSendTaskSerive.sendRequest(caseRequest.headers, caseRequest.body, caseRequest.testAddress));
         return sendTasks;
     }
 
-    public async processSendResponse(res: Array<any>, testScript: string, caseTestResult: CaseResult): Promise<CaseSendResponse> {
+    public async processSendResponse(res: Array<any>, req: CaseRequest, testScript: string, caseTestResult: CaseResult): Promise<CaseSendResponse> {
         let baseResponse = res[0];
         let testResponse = res[1];
-        let caseSendResponse = new CaseSendResponse();
         if (typeof baseResponse === "string" || typeof testResponse === "string") {
-            caseSendResponse.caseStatus = CaseStatus.EXCEPTION;
-            caseSendResponse.exceptionMsg = typeof baseResponse === "string" ? baseResponse : testResponse;
-            return Promise.resolve(caseSendResponse);
-        } else {
-            caseSendResponse.baseResponse = baseResponse.body;
-            caseSendResponse.testResponse = testResponse.body;
-
-            let baseTestResult = await this.testService.runTestScript({ code: testScript, response: baseResponse });
-            let testTestResult = await this.testService.runTestScript({ code: testScript, response: testResponse });
-
-            baseTestResult.children.push(...caseTestResult.children);
-
-            caseSendResponse.baseTestResult = JSON.stringify(baseTestResult);
-            caseSendResponse.testTestResult = JSON.stringify(testTestResult);
-            caseSendResponse.caseStatus = this.judgeCaseStatus(baseTestResult) && this.judgeCaseStatus(testTestResult);
-            return Promise.resolve(caseSendResponse);
+            throw new Error(typeof baseResponse === "string" ? baseResponse : testResponse);
         }
+
+        let caseSendResponse = new CaseSendResponse();
+        caseSendResponse.baseResponse = JSON.stringify(baseResponse.body);
+        caseSendResponse.testResponse = JSON.stringify(testResponse.body);
+
+        let baseTestResult = await this.testService.runTestScript(testScript, { request: req, response: baseResponse });
+        let testTestResult = await this.testService.runTestScript(testScript, { request: req, response: testResponse });
+
+        baseTestResult.caseResult.children.push(...caseTestResult.children);
+        testTestResult.caseResult.children.push(...caseTestResult.children);
+
+        caseSendResponse.baseTestResult = JSON.stringify(baseTestResult.caseResult);
+        caseSendResponse.testTestResult = JSON.stringify(testTestResult.caseResult);
+        caseSendResponse.caseStatus = this.judgeCaseStatus(baseTestResult.caseResult) && this.judgeCaseStatus(testTestResult.caseResult);
+        return Promise.resolve(caseSendResponse);
+
     }
 
-    public backFillRelatedInfo(caseSendResponse: CaseSendResponse, caseSendRequest: CaseSendRequest) {
-        caseSendResponse.baseUrl = caseSendRequest.baseAddress.endpoint;
-        caseSendResponse.testUrl = caseSendRequest.testAddress.endpoint;
+    public backFillRelatedInfo(caseSendResponse: CaseSendResponse, caseRequest: CaseRequest) {
+        caseSendResponse.baseUrl = caseRequest.baseAddress.endpoint;
+        caseSendResponse.testUrl = caseRequest.testAddress.endpoint;
 
-        caseSendResponse.headers = caseSendRequest.headers;
-        caseSendResponse.request = caseSendRequest.body.body;
+        caseSendResponse.headers = caseRequest.headers;
+        caseSendResponse.request = caseRequest.body;
     }
 
 

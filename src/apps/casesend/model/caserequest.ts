@@ -1,15 +1,11 @@
-import { Address } from "./address"
-import { BodyType } from "./bodytype";
+import { Address } from "./address";
 import { KeyValuePairType } from "./keyvaluepairType";
 
-export class CaseSendRequest {
+export class CaseRequest {
 
     address: Address;
     headers: Array<KeyValuePairType>;
     body: string;
-    preTestScripts: Array<string>;
-    testScript: string;
-
     baseAddress: Address;
     testAddress: Address;
 

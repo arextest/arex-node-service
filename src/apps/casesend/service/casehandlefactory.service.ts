@@ -1,4 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { CaseRequest } from "../model/caserequest";
 import { CaseSendRequest } from "../model/casesendrequest";
 import { CaseHandleService } from "./casehandle.service";
 import { DoubleCaseHandleService } from "./doublecasehandle.service";
@@ -13,11 +14,8 @@ export class CaseHandleFactoryService {
     @Inject()
     doubleCaseHandleService: DoubleCaseHandleService;
 
-    public select(caseSendRequest: CaseSendRequest): CaseHandleService {
-        if (caseSendRequest.baseAddress === undefined) {
-            return this.noramlCaseHandleService;
-        }
-        return this.doubleCaseHandleService;
+    public select(caseRequest: CaseRequest): CaseHandleService {
+        return caseRequest.baseAddress ? this.doubleCaseHandleService : this.noramlCaseHandleService;
     }
 
 }

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { RunEnv } from "src/apps/test/model/runenv";
+import { RunEnv } from "../../test/model/runenv";
 import { CaseRequest } from "../model/caserequest";
 
 @Injectable()

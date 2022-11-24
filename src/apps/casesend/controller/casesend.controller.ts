@@ -2,7 +2,7 @@ import {
     Body,
     Controller, Inject, Post
 } from "@nestjs/common";
-import { ResponseUtils } from "src/apps/utils/responseutils";
+import { ResponseUtils } from "../../utils/responseutils";
 import { CaseSendService } from "../../casesend/service/casesend.service";
 import { CaseSendRequest } from "../model/casesendrequest";
 import { CaseSendResponse } from "../model/casesendresponse";

@@ -1,5 +1,5 @@
-import { Address } from "src/apps/casesend/model/address";
-import { KeyValuePairType } from "src/apps/casesend/model/keyvaluepairType";
+import { Address } from "../../casesend/model/address";
+import { KeyValuePairType } from "../../casesend/model/keyvaluepairType";
 import { CaseResult } from "./caseresult";
 import { RunEnv } from "./runenv";
 

@@ -1,8 +1,8 @@
 import {
   Body, Controller, Inject, Post
 } from '@nestjs/common';
-import { CaseRequest } from 'src/apps/casesend/model/caserequest';
-import { ResponseUtils } from 'src/apps/utils/responseutils';
+import { CaseRequest } from '../../casesend/model/caserequest';
+import { ResponseUtils } from '../../utils/responseutils';
 import { PreTestScriptRequest } from '../model/pretestscriptrequest';
 import { PreTestService } from '../service/pretest.service';
 import { TestService } from '../service/test.service';

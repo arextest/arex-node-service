@@ -15,10 +15,7 @@ export class CaseHandleFactoryService {
     doubleCaseHandleService: DoubleCaseHandleService;
 
     public select(caseRequest: CaseRequest): CaseHandleService {
-        if (caseRequest.baseAddress === undefined) {
-            return this.noramlCaseHandleService;
-        }
-        return this.doubleCaseHandleService;
+        return caseRequest.baseAddress ? this.doubleCaseHandleService : this.noramlCaseHandleService;
     }
 
 }

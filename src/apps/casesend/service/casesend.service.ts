@@ -1,15 +1,12 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { forkJoin } from "rxjs";
-import { RunEnv } from "src/apps/test/model/runenv";
-import { PreTestService } from "src/apps/test/service/pretest.service";
 import { CaseResult } from "../../test/model/caseresult";
+import { RunEnv } from "../../test/model/runenv";
+import { PreTestService } from "../../test/service/pretest.service";
 import { TestService } from "../../test/service/test.service";
-import { ResponseUtils } from "../../utils/responseutils";
-import { BodyType } from "../model/bodytype";
 import { CaseRequest } from "../model/caserequest";
 import { CaseSendRequest } from "../model/casesendrequest";
-import { KeyValuePairType } from "../model/keyvaluepairType";
-import { CommonResponse } from "../model/response";
+import { CaseSendResponse } from "../model/casesendresponse";
 import { CaseHandleFactoryService } from "./casehandlefactory.service";
 import { ProprecessService } from "./preprocess.service";
 
@@ -29,45 +26,55 @@ export class CaseSendService {
     @Inject()
     private readonly caseHandleFactoryService: CaseHandleFactoryService;
 
-    async caseSend(caseSendRequest: CaseSendRequest): Promise<CommonResponse> {
-        const caseTestResult = new CaseResult("root", [], []);
+    async caseSend(caseSendRequest: CaseSendRequest): Promise<CaseSendResponse> {
 
-        let envList = new Array<RunEnv>;
-        let caseRequest = this.buildRequest(caseSendRequest);
-        let preTestScripts = caseSendRequest.preTestScripts;
-        let testScript = caseSendRequest.testScript;
+        return new Promise(async (resolve, reject) => {
+            const caseTestResult = new CaseResult("root", [], []);
+
+            let envList = new Array<RunEnv>;
+            let caseRequest = this.buildRequest(caseSendRequest);
+            let preTestScripts = caseSendRequest.preTestScripts;
+            let testScript = caseSendRequest.testScript;
 
 
-        if (preTestScripts && preTestScripts.length !== 0) {
+            if (preTestScripts && preTestScripts.length !== 0) {
+                try {
+                    let preScriptResult = await this.preTestService.runPreTestScript(caseRequest, envList, preTestScripts);
+                    caseTestResult.children.push(...(preScriptResult.caseResult.children || []));
+                    envList = preScriptResult.envList || []
+                } catch (error) {
+                    reject(error);
+                    return;
+                }
+            }
+
+            // 预处理request, url, header; 环境变量替换
+            this.preprocessService.preprocess(caseRequest, envList);
+
+            // 发送请求
+            let caseHandleService = this.caseHandleFactoryService.select(caseRequest);
+            let sendTasks = caseHandleService.buildSendTasks(caseRequest);
+
+            let observables = forkJoin([...sendTasks]);
+            const res = await new Promise<Array<any>>(
+                (resolve) => {
+                    observables.subscribe(item => {
+                        resolve(item)
+                    })
+                }
+            );
+
             try {
-                let preScriptResult = await this.preTestService.runPreTestScript(caseRequest, envList, preTestScripts);
-                caseTestResult.children.concat(preScriptResult.caseResult.children);
-                envList = preScriptResult.envList || []
+                let caseSendResponse = await caseHandleService.processSendResponse(res, caseRequest, testScript, caseTestResult);
+                caseHandleService.backFillRelatedInfo(caseSendResponse, caseRequest);
+                resolve(caseSendResponse);
             } catch (error) {
-                return Promise.resolve(ResponseUtils.exceptionResponse(error.message));
+                reject(error);
+                return;
             }
-        }
+        })
 
-        // 预处理request, url, header; 环境变量替换
-        this.preprocessService.preprocess(caseRequest, envList);
 
-        // 发送请求
-        let caseHandleService = this.caseHandleFactoryService.select(caseRequest);
-        let sendTasks = caseHandleService.buildSendTasks(caseRequest);
-
-        let observables = forkJoin([...sendTasks]);
-        const res = await new Promise<Array<any>>(
-            (resolve) => {
-                observables.subscribe(item => {
-                    resolve(item)
-                })
-            }
-        );
-
-        let caseSendResponse = await caseHandleService.processSendResponse(res, caseRequest, testScript, caseTestResult);
-
-        caseHandleService.backFillRelatedInfo(caseSendResponse, caseRequest);
-        return Promise.resolve(ResponseUtils.successResponse(caseSendResponse));
     }
 
     private buildRequest(caseSendRequest: CaseSendRequest): CaseRequest {

@@ -6,7 +6,7 @@ import { CaseRequest } from "../model/caserequest";
 export class ProprecessService {
 
     preprocess(caseRequest: CaseRequest, envList: Array<RunEnv>) {
-        if (envList || envList.length === 0) {
+        if (!envList || envList.length === 0) {
             return;
         }
 
@@ -20,7 +20,7 @@ export class ProprecessService {
                 (runEnv: RunEnv) => runEnv.value);
         }
 
-        caseRequest.body = this.urlPretreatment(caseRequest.address.endpoint, envList,
+        caseRequest.body = this.urlPretreatment(caseRequest.body, envList,
             (runEnv: RunEnv) => runEnv.value);
 
         for (let index = 0; index < caseRequest.headers.length; index++) {

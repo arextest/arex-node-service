@@ -1,7 +1,7 @@
-import { ResponseStatusType } from "./responsestatustype";
+import { ResponseStatusType } from './responsestatustype';
 
 export interface CommonResponse {
-    getResponseStatusType(): ResponseStatusType;
+  getResponseStatusType(): ResponseStatusType;
 
-    setResponseStatusType(responseStatusType: ResponseStatusType): void;
+  setResponseStatusType(responseStatusType: ResponseStatusType): void;
 }

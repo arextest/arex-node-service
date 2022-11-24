@@ -4,7 +4,6 @@ import { CaseResult } from '../../test/model/caseresult';
 import { TestService } from '../../test/service/test.service';
 import { CaseRequest } from '../model/caserequest';
 import { CaseSendResponse } from '../model/casesendresponse';
-import { CaseStatus } from '../model/casestatus';
 import { BuildSendTaskSerive } from './buildsendtask.servce';
 import { CaseHandleService } from './casehandle.service';
 

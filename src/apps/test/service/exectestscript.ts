@@ -1,16 +1,14 @@
 import { AxiosRequestConfig } from 'axios';
 import { LoggerService } from '../../../logger.service';
-import { CaseResult } from "../model/caseresult";
-import { ExecScriptResult } from "../model/execscriptresult";
-import { TestField } from "../model/testfield";
+import { CaseResult } from '../model/caseresult';
+import { ExecScriptResult } from '../model/execscriptresult';
+import { TestField } from '../model/testfield';
 const vm = require('vm');
 const axios = require('axios');
 const mysql = require('mysql2/promise');
 const logService = new LoggerService(execTestScript.name);
 
-
 class Pw extends TestField {
-
   caseResult: CaseResult = new CaseResult('root', [], []);
 
   firstLvIndex = -1;
@@ -80,12 +78,15 @@ class Pw extends TestField {
     // b
     this.caseResult.children[this.firstLvIndex].expectResults[
       this.secondLvIndex
-    ].message = `Expected ${this.caseResult.children[this.firstLvIndex].expectResults[
-      this.secondLvIndex
-    ].leftValue
-    } to be ${this.caseResult.children[this.firstLvIndex].expectResults[
-      this.secondLvIndex
-    ].rightValue}'`;
+    ].message = `Expected ${
+      this.caseResult.children[this.firstLvIndex].expectResults[
+        this.secondLvIndex
+      ].leftValue
+    } to be ${
+      this.caseResult.children[this.firstLvIndex].expectResults[
+        this.secondLvIndex
+      ].rightValue
+    }'`;
   }
 
   toBeLevel2xx(rightValue) {
@@ -112,28 +113,29 @@ class Pw extends TestField {
     // b
     this.caseResult.children[this.firstLvIndex].expectResults[
       this.secondLvIndex
-    ].message = `Expected ${this.caseResult.children[this.firstLvIndex].expectResults[
-      this.secondLvIndex
-    ].leftValue
-    } to be ${this.caseResult.children[this.firstLvIndex].expectResults[
-      this.secondLvIndex
-    ].rightValue}'`;
+    ].message = `Expected ${
+      this.caseResult.children[this.firstLvIndex].expectResults[
+        this.secondLvIndex
+      ].leftValue
+    } to be ${
+      this.caseResult.children[this.firstLvIndex].expectResults[
+        this.secondLvIndex
+      ].rightValue
+    }'`;
   }
 
   async sendRequest(url: string | AxiosRequestConfig<string>, callback) {
-    if (typeof url == "string") {
+    if (typeof url == 'string') {
       let response = undefined;
       try {
         response = await axios.get(url);
       } catch (err) {
-
         try {
           callback(err, null);
         } catch (error) {
           logService.error(error.message);
         }
         return;
-
       }
 
       try {
@@ -141,21 +143,17 @@ class Pw extends TestField {
       } catch (error) {
         logService.error(error.message);
       }
-
     } else {
-
       let response = undefined;
       try {
         response = await axios(url);
       } catch (err) {
-
         try {
           callback(err, null);
         } catch (error) {
           logService.error(error.message);
         }
         return;
-
       }
 
       try {
@@ -163,21 +161,29 @@ class Pw extends TestField {
       } catch (error) {
         logService.error(error.message);
       }
-
     }
   }
 
-  async executeMySql(connectConfig: { host: string, port: string, user: string, password: string, database: string, multipleStatements?: boolean },
-    executeBody: { sql: string, params?: [unknown] }, callback) {
-
-    let db = undefined
+  async executeMySql(
+    connectConfig: {
+      host: string;
+      port: string;
+      user: string;
+      password: string;
+      database: string;
+      multipleStatements?: boolean;
+    },
+    executeBody: { sql: string; params?: [unknown] },
+    callback,
+  ) {
+    let db = undefined;
     try {
       db = await mysql.createConnection(connectConfig);
     } catch (error) {
       try {
         callback(error, undefined);
       } catch (error) {
-        console.log("have problem");
+        console.log('have problem');
       }
       return;
     }
@@ -191,7 +197,7 @@ class Pw extends TestField {
       try {
         callback(error, undefined);
       } catch (error) {
-        console.log("have problem");
+        console.log('have problem');
       }
       await db.end();
       return;
@@ -200,12 +206,15 @@ class Pw extends TestField {
     try {
       callback(null, res1[0]);
     } catch (error) {
-      console.log("have problem");
+      console.log('have problem');
     }
   }
 }
 
-export function execTestScript(code: string, testField: TestField): Promise<ExecScriptResult> {
+export function execTestScript(
+  code: string,
+  testField: TestField,
+): Promise<ExecScriptResult> {
   return new Promise<ExecScriptResult>((resolve, reject) => {
     const pw = new Pw(testField);
     const sandbox = {
@@ -216,16 +225,18 @@ export function execTestScript(code: string, testField: TestField): Promise<Exec
 
     const testPromise = vm.runInNewContext(code, sandbox, { timeout: 2000 });
     if (testPromise instanceof Promise) {
-      testPromise.then(() => {
-        resolve({ caseResult: pw.getCaseResult(), environment: pw.environment });
-      }).catch((err) => {
-        reject(err);
-      })
+      testPromise
+        .then(() => {
+          resolve({
+            caseResult: pw.getCaseResult(),
+            environment: pw.environment,
+          });
+        })
+        .catch((err) => {
+          reject(err);
+        });
     } else {
       resolve({ caseResult: pw.getCaseResult(), environment: pw.environment });
     }
   });
-
 }
-
-

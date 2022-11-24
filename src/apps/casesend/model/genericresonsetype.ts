@@ -1,23 +1,20 @@
-import { ResponseStatusType } from "./responsestatustype";
-import { CommonResponse } from "./response";
+import { ResponseStatusType } from './responsestatustype';
+import { CommonResponse } from './response';
 
+export class GenericResponseType<T> implements CommonResponse {
+  responseStatusType: ResponseStatusType;
+  body: T;
 
-export class GenericResponseType<T> implements CommonResponse{
+  constructor(responseStatusType: ResponseStatusType, body: T) {
+    this.responseStatusType = responseStatusType;
+    this.body = body;
+  }
 
-    responseStatusType: ResponseStatusType;
-    body: T;
+  getResponseStatusType(): ResponseStatusType {
+    return this.responseStatusType;
+  }
 
-    constructor(responseStatusType: ResponseStatusType, body: T) {
-        this.responseStatusType = responseStatusType;
-        this.body = body;
-    }
-
-    getResponseStatusType(): ResponseStatusType {
-        return this.responseStatusType;
-    }
-
-    setResponseStatusType(responseStatusType: ResponseStatusType): void {
-        this.responseStatusType = responseStatusType
-    }
-
+  setResponseStatusType(responseStatusType: ResponseStatusType): void {
+    this.responseStatusType = responseStatusType;
+  }
 }

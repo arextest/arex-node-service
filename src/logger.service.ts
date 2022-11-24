@@ -12,18 +12,20 @@ export class LoggerService {
   private logger: winston.Logger
   constructor(appName) {
     this.logger = winston.createLogger({
-			//level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 } 
+      // level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 } 
+      // level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 } 
+      // level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 } 
       level: IS_DEV ? 'silly' : 'info',
       format: winston.format.combine(
         winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
         winston.format.colorize(),
-				//自定义打印格式
+        //自定义打印格式
         winston.format.printf(({ level, timestamp, message }) => {
           return `[${timestamp}] [${level}] [${appName}]: ${message}`
         }),
       ),
       transports: [
-				//分包，当文件大于20M时会自动拆分
+        //分包，当文件大于20M时会自动拆分
         new DailyRotateFile({
           filename: path.join(process.cwd(), 'logs/error-%DATE%.log'),
           datePattern: 'YYYY-MM-DD',

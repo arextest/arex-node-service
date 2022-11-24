@@ -214,7 +214,7 @@ export function execTestScript(code: string, testField: TestField): Promise<Exec
       JSON: JSON,
     };
 
-    const testPromise = vm.runInNewContext(code, sandbox);
+    const testPromise = vm.runInNewContext(code, sandbox, { timeout: 2000 });
     if (testPromise instanceof Promise) {
       testPromise.then(() => {
         resolve({ caseResult: pw.getCaseResult(), environment: pw.environment });

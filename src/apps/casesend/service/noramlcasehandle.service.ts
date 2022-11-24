@@ -29,19 +29,17 @@ export class NoramlCaseHandleService extends CaseHandleService {
 
     public async processSendResponse(res: Array<any>, req: CaseRequest, testScript: string, caseTestResult: CaseResult): Promise<CaseSendResponse> {
         let response = res[0];
-        let caseSendResponse = new CaseSendResponse();
         if (typeof response === "string") {
-            caseSendResponse.caseStatus = CaseStatus.EXCEPTION;
-            caseSendResponse.exceptionMsg = response;
-            return Promise.resolve(caseSendResponse);
-        } else {
-            caseSendResponse.response = response.body;
-            let testResult = await this.testService.runTestScript(testScript, { request: req, response: response });
-            testResult.caseResult.children.push(...caseTestResult.children);
-            caseSendResponse.testResult = JSON.stringify(testResult.caseResult);
-            caseSendResponse.caseStatus = this.judgeCaseStatus(testResult.caseResult);
-            return Promise.resolve(caseSendResponse);
+            throw new Error(response);
         }
+
+        let caseSendResponse = new CaseSendResponse();
+        caseSendResponse.response = JSON.stringify(response.body);
+        let testResult = await this.testService.runTestScript(testScript, { request: req, response: response });
+        testResult.caseResult.children.push(...caseTestResult.children);
+        caseSendResponse.testResult = JSON.stringify(testResult.caseResult);
+        caseSendResponse.caseStatus = this.judgeCaseStatus(testResult.caseResult);
+        return Promise.resolve(caseSendResponse);
     }
 
     public backFillRelatedInfo(caseSendResponse: CaseSendResponse, caseRequest: CaseRequest) {

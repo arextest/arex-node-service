@@ -12,6 +12,13 @@ import { ProprecessService } from './service/preprocess.service';
 @Module({
   imports: [HttpModule, TestModule],
   controllers: [CaseSendController],
-  providers: [CaseSendService, ProprecessService, CaseHandleFactoryService, NoramlCaseHandleService, DoubleCaseHandleService, BuildSendTaskSerive]
+  providers: [
+    CaseSendService,
+    ProprecessService,
+    CaseHandleFactoryService,
+    NoramlCaseHandleService,
+    DoubleCaseHandleService,
+    BuildSendTaskSerive,
+  ],
 })
-export class CaseSendModule { }
+export class CaseSendModule {}

@@ -1,27 +1,28 @@
 //logger.service.ts
-import { Injectable } from '@nestjs/common'
-import * as winston from 'winston'
-import * as DailyRotateFile from 'winston-daily-rotate-file'
-import * as path from 'path'
+import { Injectable } from '@nestjs/common';
+import * as winston from 'winston';
+import * as DailyRotateFile from 'winston-daily-rotate-file';
+import * as path from 'path';
 
-const IS_DEV = process.env.NODE_ENV !== 'production'
-const isObject = data => Object.is(Object.prototype.toString.call(data), '[object Object]')
+const IS_DEV = process.env.NODE_ENV !== 'production';
+const isObject = (data) =>
+  Object.is(Object.prototype.toString.call(data), '[object Object]');
 
 @Injectable()
 export class LoggerService {
-  private logger: winston.Logger
+  private logger: winston.Logger;
   constructor(appName) {
     this.logger = winston.createLogger({
-      // level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 } 
-      // level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 } 
-      // level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 } 
+      // level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 }
+      // level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 }
+      // level : { error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 }
       level: IS_DEV ? 'silly' : 'info',
       format: winston.format.combine(
         winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
         winston.format.colorize(),
         //自定义打印格式
         winston.format.printf(({ level, timestamp, message }) => {
-          return `[${timestamp}] [${level}] [${appName}]: ${message}`
+          return `[${timestamp}] [${level}] [${appName}]: ${message}`;
         }),
       ),
       transports: [
@@ -44,39 +45,41 @@ export class LoggerService {
           level: 'silly',
         }),
         IS_DEV ? new winston.transports.Console({}) : null,
-      ].filter(t => !!t),
-    })
+      ].filter((t) => !!t),
+    });
   }
 
   private stringify(...args: any[]): string {
-    return args.map(arg => (isObject(arg) ? JSON.stringify(arg) : arg)).join('')
+    return args
+      .map((arg) => (isObject(arg) ? JSON.stringify(arg) : arg))
+      .join('');
   }
 
   public error(message: any, data?: any): void {
-    this.logger.error(this.stringify(message, data))
+    this.logger.error(this.stringify(message, data));
   }
 
   public warn(message: any, data?: any): void {
-    this.logger.warn(this.stringify(message, data))
+    this.logger.warn(this.stringify(message, data));
   }
 
   public info(message: any, data?: any): void {
-    this.logger.info(this.stringify(message, data))
+    this.logger.info(this.stringify(message, data));
   }
 
   public http(message: any, data?: any): void {
-    this.logger.http(this.stringify(message, data))
+    this.logger.http(this.stringify(message, data));
   }
 
   public verbose(message: any, data?: any): void {
-    this.logger.verbose(this.stringify(message, data))
+    this.logger.verbose(this.stringify(message, data));
   }
 
   public debug(message: any, data?: any): void {
-    this.logger.debug(this.stringify(message, data))
+    this.logger.debug(this.stringify(message, data));
   }
 
   public silly(message: any, data?: any): void {
-    this.logger.silly(this.stringify(message, data))
+    this.logger.silly(this.stringify(message, data));
   }
 }

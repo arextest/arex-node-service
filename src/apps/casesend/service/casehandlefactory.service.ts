@@ -1,21 +1,21 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { CaseRequest } from "../model/caserequest";
-import { CaseSendRequest } from "../model/casesendrequest";
-import { CaseHandleService } from "./casehandle.service";
-import { DoubleCaseHandleService } from "./doublecasehandle.service";
-import { NoramlCaseHandleService } from "./noramlcasehandle.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { CaseRequest } from '../model/caserequest';
+import { CaseSendRequest } from '../model/casesendrequest';
+import { CaseHandleService } from './casehandle.service';
+import { DoubleCaseHandleService } from './doublecasehandle.service';
+import { NoramlCaseHandleService } from './noramlcasehandle.service';
 
 @Injectable()
 export class CaseHandleFactoryService {
+  @Inject()
+  noramlCaseHandleService: NoramlCaseHandleService;
 
-    @Inject()
-    noramlCaseHandleService: NoramlCaseHandleService;
+  @Inject()
+  doubleCaseHandleService: DoubleCaseHandleService;
 
-    @Inject()
-    doubleCaseHandleService: DoubleCaseHandleService;
-
-    public select(caseRequest: CaseRequest): CaseHandleService {
-        return caseRequest.baseAddress ? this.doubleCaseHandleService : this.noramlCaseHandleService;
-    }
-
+  public select(caseRequest: CaseRequest): CaseHandleService {
+    return caseRequest.baseAddress
+      ? this.doubleCaseHandleService
+      : this.noramlCaseHandleService;
+  }
 }

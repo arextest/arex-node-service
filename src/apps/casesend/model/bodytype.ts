@@ -1,4 +1,4 @@
 export class BodyType {
-    contenttype: string;
-    body:string;
+  contenttype: string;
+  body: string;
 }

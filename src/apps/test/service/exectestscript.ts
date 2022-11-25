@@ -3,7 +3,7 @@ import { ExecScriptResult } from '../model/execscriptresult';
 import { TestField } from '../model/testfield';
 const vm = require('vm');
 const axios = require('axios');
-import * as mysql from 'mysql2/promise';
+const mysql = require('mysql2/promise');
 
 class Pw extends TestField {
   caseResult: CaseResult = new CaseResult('root', [], []);

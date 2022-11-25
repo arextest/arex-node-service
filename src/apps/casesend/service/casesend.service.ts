@@ -3,7 +3,6 @@ import { forkJoin } from 'rxjs';
 import { CaseResult } from '../../test/model/caseresult';
 import { RunEnv } from '../../test/model/runenv';
 import { PreTestService } from '../../test/service/pretest.service';
-import { TestService } from '../../test/service/test.service';
 import { CaseRequest } from '../model/caserequest';
 import { CaseSendRequest } from '../model/casesendrequest';
 import { CaseSendResponse } from '../model/casesendresponse';
@@ -12,9 +11,6 @@ import { ProprecessService } from './preprocess.service';
 
 @Injectable()
 export class CaseSendService {
-  @Inject()
-  private readonly testService: TestService;
-
   @Inject()
   private readonly preTestService: PreTestService;
 

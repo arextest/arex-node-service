@@ -19,25 +19,20 @@ export class PreTestService {
     return new Promise(async (resolve, reject) => {
       const multiScriptresult = new ExecScriptResult();
       const envMap = this.runEnvList2EnvMap(envList);
-
-      for (let index = 0; index < preTestScripts.length; index++) {
-        const element = preTestScripts[index];
-        try {
-          const execScriptResult = await this.testService.runTestScript(
-            element,
-            {
-              request: caserequest,
-              environment: envMap,
-            },
-          );
-          multiScriptresult.caseResult.children.push(
-            ...execScriptResult.caseResult.children,
-          );
-        } catch (error) {
-          reject(error);
-          return;
-        }
+      const code = preTestScripts.join(';');
+      try {
+        const execScriptResult = await this.testService.runTestScript(code, {
+          request: caserequest,
+          environment: envMap,
+        });
+        multiScriptresult.caseResult.children.push(
+          ...execScriptResult.caseResult.children,
+        );
+      } catch (error) {
+        reject(error);
+        return;
       }
+
       multiScriptresult.environment = envMap;
       resolve(this.buildPreTestScriptResponse(caserequest, multiScriptresult));
     });

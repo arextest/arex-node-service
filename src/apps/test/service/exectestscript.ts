@@ -1,12 +1,9 @@
-import { AxiosRequestConfig } from 'axios';
-import { LoggerService } from '../../../logger.service';
 import { CaseResult } from '../model/caseresult';
 import { ExecScriptResult } from '../model/execscriptresult';
 import { TestField } from '../model/testfield';
 const vm = require('vm');
 const axios = require('axios');
 const mysql = require('mysql2/promise');
-const logService = new LoggerService(execTestScript.name);
 
 class Pw extends TestField {
   caseResult: CaseResult = new CaseResult('root', [], []);
@@ -124,46 +121,6 @@ class Pw extends TestField {
     }'`;
   }
 
-  async sendRequest(url: string | AxiosRequestConfig<string>, callback) {
-    if (typeof url == 'string') {
-      let response = undefined;
-      try {
-        response = await axios.get(url);
-      } catch (err) {
-        try {
-          callback(err, null);
-        } catch (error) {
-          logService.error(error.message);
-        }
-        return;
-      }
-
-      try {
-        callback(null, response);
-      } catch (error) {
-        logService.error(error.message);
-      }
-    } else {
-      let response = undefined;
-      try {
-        response = await axios(url);
-      } catch (err) {
-        try {
-          callback(err, null);
-        } catch (error) {
-          logService.error(error.message);
-        }
-        return;
-      }
-
-      try {
-        callback(null, response);
-      } catch (error) {
-        logService.error(error.message);
-      }
-    }
-  }
-
   async executeMySql(
     connectConfig: {
       host: string;
@@ -174,40 +131,27 @@ class Pw extends TestField {
       multipleStatements?: boolean;
     },
     executeBody: { sql: string; params?: [unknown] },
-    callback,
   ) {
-    let db = undefined;
-    try {
-      db = await mysql.createConnection(connectConfig);
-    } catch (error) {
+    return new Promise(async (resolve, reject) => {
+      let db = undefined;
       try {
-        callback(error, undefined);
+        db = await mysql.createConnection(connectConfig);
       } catch (error) {
-        console.log('have problem');
+        reject(error);
+        return;
       }
-      return;
-    }
 
-    let res1 = undefined;
-
-    try {
-      res1 = await db.query(executeBody.sql, executeBody.params);
-      await db.end();
-    } catch (error) {
+      let res1 = undefined;
       try {
-        callback(error, undefined);
+        res1 = await db.query(executeBody.sql, executeBody.params);
+        await db.end();
       } catch (error) {
-        console.log('have problem');
+        await db.end();
+        reject(error);
+        return;
       }
-      await db.end();
-      return;
-    }
-
-    try {
-      callback(null, res1[0]);
-    } catch (error) {
-      console.log('have problem');
-    }
+      resolve(res1);
+    });
   }
 }
 
@@ -221,22 +165,23 @@ export function execTestScript(
       arex: pw,
       console: console,
       JSON: JSON,
+      axios: axios,
     };
 
-    const testPromise = vm.runInNewContext(code, sandbox, { timeout: 2000 });
-    if (testPromise instanceof Promise) {
-      testPromise
-        .then(() => {
-          resolve({
-            caseResult: pw.getCaseResult(),
-            environment: pw.environment,
-          });
-        })
-        .catch((err) => {
-          reject(err);
+    const testPromise = vm.runInNewContext(
+      `async function fn(){${code}};fn()`,
+      sandbox,
+      { timeout: 5000 },
+    );
+    testPromise
+      .then(() => {
+        resolve({
+          caseResult: pw.getCaseResult(),
+          environment: pw.environment,
         });
-    } else {
-      resolve({ caseResult: pw.getCaseResult(), environment: pw.environment });
-    }
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 }

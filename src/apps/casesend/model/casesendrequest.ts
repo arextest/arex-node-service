@@ -1,5 +1,4 @@
 import { Address } from './address';
-import { BodyType } from './bodytype';
 import { KeyValuePairType } from './keyvaluepairType';
 
 export class CaseSendRequest {

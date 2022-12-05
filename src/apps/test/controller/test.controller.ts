@@ -30,6 +30,9 @@ export class TestController {
         preTestScriptRequest.envList,
         preTestScriptRequest.varList,
         preTestScriptRequest.preTestScripts,
+        preTestScriptRequest.response
+          ? JSON.parse(preTestScriptRequest.response)
+          : preTestScriptRequest.response,
       );
       return ResponseUtils.successResponse(PreTestScriptResponse);
     } catch (error) {

@@ -7,6 +7,7 @@ export class PreTestScriptRequest {
   address: Address;
   headers: Array<KeyValuePairType>;
   body: string;
+  response: string;
   preTestScripts: Array<string>;
 
   baseAddress: Address;

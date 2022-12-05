@@ -17,7 +17,6 @@ export class ProprecessService {
       return;
     }
 
-    // 兼容Array<RunEnv>和Array<RunVar>
     const envAndVar = this.unitEnvAndVar(envList, varList);
 
     if (caseRequest.baseAddress) {

@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { LoggerService } from './logger.service';
 import { prepareInit } from './utils/prepareInit';
+import * as bodyParser from 'body-parser';
 
 const logService = new LoggerService('ListenError');
 async function bootstrap() {
@@ -10,6 +11,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['log', 'debug', 'warn', 'error'],
   });
+  app.use(bodyParser.json({ limit: '150mb' }));
+  app.use(bodyParser.urlencoded({ limit: '150mb', extended: true }));
   app.enableCors();
   await app.listen(3000);
 }

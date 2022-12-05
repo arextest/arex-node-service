@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable } from '@nestjs/common';
 import { AxiosRequestHeaders } from 'axios';
-import { catchError, map, Observable, of, timeout } from 'rxjs';
+import { map, Observable, throwError, timeout } from 'rxjs';
 import { Address } from '../model/address';
 import { KeyValuePairType } from '../model/keyvaluepairType';
 
@@ -24,7 +24,7 @@ export class BuildSendTaskSerive {
         res = this.sendPostRequest(headers, body, address);
         break;
       default:
-        return of('the method not support');
+        return throwError(() => new Error('the request method not support'));
     }
     return res;
   }
@@ -47,7 +47,6 @@ export class BuildSendTaskSerive {
           };
         }),
         timeout(5000),
-        catchError((error) => of(JSON.stringify(error))),
       );
   }
 
@@ -69,7 +68,6 @@ export class BuildSendTaskSerive {
           };
         }),
         timeout(5000),
-        catchError((error) => of(JSON.stringify(error))),
       );
   }
 

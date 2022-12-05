@@ -1,6 +1,7 @@
 import { KeyValuePairType } from '../../../../src/apps/casesend/model/keyvaluepairType';
 import { Address } from '../../../../src/apps/casesend/model/address';
 import { RunEnv } from './runenv';
+import { RunVar } from './runvar';
 
 export class PreTestScriptRequest {
   address: Address;
@@ -12,4 +13,5 @@ export class PreTestScriptRequest {
   testAddress: Address;
 
   envList: Array<RunEnv>;
+  varList: Array<RunVar>;
 }

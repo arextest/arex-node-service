@@ -1,3 +1,5 @@
+import { RunEnv } from '../../test/model/runenv';
+import { RunVar } from '../../test/model/runvar';
 import { Address } from './address';
 import { KeyValuePairType } from './keyvaluepairType';
 
@@ -10,4 +12,7 @@ export class CaseSendRequest {
 
   baseAddress: Address;
   testAddress: Address;
+
+  envList: Array<RunEnv>;
+  varList: Array<RunVar>;
 }

@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { CaseResult } from '../../test/model/caseresult';
-import { TestService } from '../../test/service/test.service';
+import { RunEnv } from '../../test/model/runenv';
+import { RunVar } from '../../test/model/runvar';
+import { PreTestService } from '../../test/service/pretest.service';
 import { CaseRequest } from '../model/caserequest';
 import { CaseSendResponse } from '../model/casesendresponse';
 import { BuildSendTaskSerive } from './buildsendtask.servce';
@@ -13,7 +15,7 @@ export class DoubleCaseHandleService extends CaseHandleService {
   private readonly buildSendTaskSerive: BuildSendTaskSerive;
 
   @Inject()
-  private readonly testService: TestService;
+  private readonly preTestService: PreTestService;
 
   isSupport(caseRequest: CaseRequest): boolean {
     return caseRequest.baseAddress !== undefined;
@@ -41,38 +43,47 @@ export class DoubleCaseHandleService extends CaseHandleService {
   public async processSendResponse(
     res: Array<any>,
     req: CaseRequest,
+    envList: Array<RunEnv>,
+    varList: Array<RunVar>,
     testScript: string,
     caseTestResult: CaseResult,
   ): Promise<CaseSendResponse> {
     const baseResponse = res[0];
     const testResponse = res[1];
-    if (typeof baseResponse === 'string' || typeof testResponse === 'string') {
-      throw new Error(
-        typeof baseResponse === 'string' ? baseResponse : testResponse,
-      );
-    }
 
     const caseSendResponse = new CaseSendResponse();
     caseSendResponse.baseResponse = JSON.stringify(baseResponse.body);
     caseSendResponse.testResponse = JSON.stringify(testResponse.body);
 
-    const baseTestResult = await this.testService.runTestScript(testScript, {
-      request: req,
-      response: baseResponse,
-    });
-    const testTestResult = await this.testService.runTestScript(testScript, {
-      request: req,
-      response: testResponse,
-    });
+    const baseTestExecResult = await this.preTestService.runPreTestScript(
+      req,
+      envList,
+      varList,
+      [testScript],
+      baseResponse,
+    );
+    const testTestExecResult = await this.preTestService.runPreTestScript(
+      req,
+      envList,
+      varList,
+      [testScript],
+      testResponse,
+    );
 
-    baseTestResult.caseResult.children.push(...caseTestResult.children);
-    testTestResult.caseResult.children.push(...caseTestResult.children);
+    baseTestExecResult.caseResult.children.push(...caseTestResult.children);
+    testTestExecResult.caseResult.children.push(...caseTestResult.children);
 
-    caseSendResponse.baseTestResult = JSON.stringify(baseTestResult.caseResult);
-    caseSendResponse.testTestResult = JSON.stringify(testTestResult.caseResult);
+    caseSendResponse.baseTestResult = JSON.stringify(
+      baseTestExecResult.caseResult,
+    );
+    caseSendResponse.testTestResult = JSON.stringify(
+      testTestExecResult.caseResult,
+    );
     caseSendResponse.caseStatus =
-      this.judgeCaseStatus(baseTestResult.caseResult) &&
-      this.judgeCaseStatus(testTestResult.caseResult);
+      this.judgeCaseStatus(baseTestExecResult.caseResult) &&
+      this.judgeCaseStatus(testTestExecResult.caseResult);
+    caseSendResponse.envList = testTestExecResult.envList;
+    caseSendResponse.varList = testTestExecResult.varList;
     return Promise.resolve(caseSendResponse);
   }
 
@@ -80,8 +91,8 @@ export class DoubleCaseHandleService extends CaseHandleService {
     caseSendResponse: CaseSendResponse,
     caseRequest: CaseRequest,
   ) {
-    caseSendResponse.baseUrl = caseRequest.baseAddress.endpoint;
-    caseSendResponse.testUrl = caseRequest.testAddress.endpoint;
+    caseSendResponse.baseAddress = caseRequest.baseAddress;
+    caseSendResponse.testAddress = caseRequest.testAddress;
 
     caseSendResponse.headers = caseRequest.headers;
     caseSendResponse.request = caseRequest.body;

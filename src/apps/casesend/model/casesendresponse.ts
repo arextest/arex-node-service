@@ -1,3 +1,6 @@
+import { RunEnv } from '../../test/model/runenv';
+import { RunVar } from '../../test/model/runvar';
+import { Address } from './address';
 import { KeyValuePairType } from './keyvaluepairType';
 
 export class CaseSendResponse {
@@ -7,21 +10,24 @@ export class CaseSendResponse {
   exceptionMsg: string;
 
   // 回填url
-  url: string;
-  baseUrl: string;
-  testUrl: string;
+  addresss: Address;
 
   // 回填header
   headers: Array<KeyValuePairType>;
 
   // 回填request
   request: string;
-
   response: string;
-  baseResponse: string;
-  testResponse: string;
 
   testResult: string;
+
+  envList: Array<RunEnv>;
+  varList: Array<RunVar>;
+
+  baseAddress: Address;
+  testAddress: Address;
+  baseResponse: string;
+  testResponse: string;
   baseTestResult: string;
   testTestResult: string;
 }

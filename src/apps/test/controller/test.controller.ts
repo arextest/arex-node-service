@@ -13,12 +13,6 @@ export class TestController {
   @Inject()
   private readonly preTestService: PreTestService;
 
-  @Post('/test')
-  async runTestScript(@Body() body) {
-    const { code, response } = body;
-    return this.testService.runTestScript(code, { response: response });
-  }
-
   @Post('/preTest')
   async runPreTestScript(@Body() preTestScriptRequest: PreTestScriptRequest) {
     if (
@@ -34,6 +28,7 @@ export class TestController {
       const PreTestScriptResponse = await this.preTestService.runPreTestScript(
         caseRequest,
         preTestScriptRequest.envList,
+        preTestScriptRequest.varList,
         preTestScriptRequest.preTestScripts,
       );
       return ResponseUtils.successResponse(PreTestScriptResponse);

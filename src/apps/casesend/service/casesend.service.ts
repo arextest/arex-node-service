@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { forkJoin } from 'rxjs';
+import { RunVar } from '../../test/model/runvar';
 import { CaseResult } from '../../test/model/caseresult';
 import { RunEnv } from '../../test/model/runenv';
 import { PreTestService } from '../../test/service/pretest.service';
@@ -22,49 +23,54 @@ export class CaseSendService {
 
   async caseSend(caseSendRequest: CaseSendRequest): Promise<CaseSendResponse> {
     return new Promise(async (resolve, reject) => {
-      const caseTestResult = new CaseResult('root', [], []);
+      try {
+        const caseTestResult = new CaseResult('root', [], []);
 
-      let envList = new Array<RunEnv>();
-      const caseRequest = this.buildRequest(caseSendRequest);
-      const preTestScripts = caseSendRequest.preTestScripts;
-      const testScript = caseSendRequest.testScript;
+        let envList = caseSendRequest.envList || new Array<RunEnv>();
+        let varList = caseSendRequest.varList || new Array<RunVar>();
+        const caseRequest = this.buildRequest(caseSendRequest);
+        const preTestScripts = caseSendRequest.preTestScripts;
+        const testScript = caseSendRequest.testScript;
 
-      if (preTestScripts && preTestScripts.length !== 0) {
-        try {
+        if (preTestScripts && preTestScripts.length !== 0) {
           const preScriptResult = await this.preTestService.runPreTestScript(
             caseRequest,
             envList,
+            varList,
             preTestScripts,
           );
           caseTestResult.children.push(
             ...(preScriptResult.caseResult.children || []),
           );
           envList = preScriptResult.envList || [];
-        } catch (error) {
-          reject(error);
-          return;
+          varList = preScriptResult.varList || [];
         }
-      }
 
-      // 预处理request, url, header; 环境变量替换
-      this.preprocessService.preprocess(caseRequest, envList);
+        // 预处理request, url, header; 环境变量替换
+        this.preprocessService.preprocess(caseRequest, envList, varList);
 
-      // 发送请求
-      const caseHandleService =
-        this.caseHandleFactoryService.select(caseRequest);
-      const sendTasks = caseHandleService.buildSendTasks(caseRequest);
+        // 发送请求
+        const caseHandleService =
+          this.caseHandleFactoryService.select(caseRequest);
+        const sendTasks = caseHandleService.buildSendTasks(caseRequest);
 
-      const observables = forkJoin([...sendTasks]);
-      const res = await new Promise<Array<any>>((resolve) => {
-        observables.subscribe((item) => {
-          resolve(item);
+        const observables = forkJoin([...sendTasks]);
+        const res = await new Promise<Array<any>>((resolve, reject) => {
+          observables.subscribe(
+            (item) => {
+              resolve(item);
+            },
+            (error) => {
+              reject(error);
+            },
+          );
         });
-      });
 
-      try {
         const caseSendResponse = await caseHandleService.processSendResponse(
           res,
           caseRequest,
+          envList,
+          varList,
           testScript,
           caseTestResult,
         );

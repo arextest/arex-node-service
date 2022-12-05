@@ -1,4 +1,6 @@
 import { Observable } from 'rxjs';
+import { RunEnv } from 'src/apps/test/model/runenv';
+import { RunVar } from 'src/apps/test/model/runvar';
 import { CaseResult } from '../../test/model/caseresult';
 import { CaseRequest } from '../model/caserequest';
 import { CaseSendResponse } from '../model/casesendresponse';
@@ -12,6 +14,8 @@ export abstract class CaseHandleService {
   abstract processSendResponse(
     res: Array<any>,
     req: CaseRequest,
+    envList: Array<RunEnv>,
+    varList: Array<RunVar>,
     testScript: string,
     caseTestResult: CaseResult,
   ): Promise<CaseSendResponse>;

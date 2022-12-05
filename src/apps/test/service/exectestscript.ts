@@ -16,6 +16,7 @@ class Pw extends TestField {
     this.request = testField.request;
     this.response = testField.response;
     this.environment = testField.environment;
+    this.variables = testField.variables;
   }
 
   getCaseResult(): CaseResult {
@@ -178,6 +179,7 @@ export function execTestScript(
         resolve({
           caseResult: pw.getCaseResult(),
           environment: pw.environment,
+          variables: pw.variables,
         });
       })
       .catch((err) => {

@@ -46,6 +46,7 @@ export class TestController {
     const caserequest = new CaseRequest();
     caserequest.address = preTestScriptRequest.address;
     caserequest.headers = preTestScriptRequest.headers;
+    caserequest.params = preTestScriptRequest.params;
     caserequest.body = preTestScriptRequest.body;
     caserequest.baseAddress = preTestScriptRequest.baseAddress;
     caserequest.testAddress = preTestScriptRequest.testAddress;

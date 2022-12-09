@@ -6,6 +6,7 @@ import { KeyValuePairType } from './keyvaluepairType';
 export class CaseSendRequest {
   address: Address;
   headers: Array<KeyValuePairType>;
+  params: Array<KeyValuePairType>;
   body: string;
   preTestScripts: Array<string>;
   testScript: string;

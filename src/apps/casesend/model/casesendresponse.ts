@@ -15,6 +15,9 @@ export class CaseSendResponse {
   // 回填header
   headers: Array<KeyValuePairType>;
 
+  // 回填params
+  params: Array<KeyValuePairType>;
+
   // 回填request
   request: string;
   response: string;

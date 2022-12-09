@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { RunVar } from '../../test/model/runvar';
 import { RunEnv } from '../../test/model/runenv';
+import { RunVar } from '../../test/model/runvar';
 import { CaseRequest } from '../model/caserequest';
+import { KeyValuePairType } from '../model/keyvaluepairType';
 
 @Injectable()
 export class ProprecessService {
@@ -19,6 +20,21 @@ export class ProprecessService {
 
     const envAndVar = this.unitEnvAndVar(envList, varList);
 
+    for (let index = 0; index < caseRequest.params.length; index++) {
+      const param = caseRequest.params[index];
+      param.key = this.urlPretreatment(
+        param.key,
+        envAndVar,
+        (item) => item.value,
+      );
+      param.value = this.urlPretreatment(
+        param.value,
+        envAndVar,
+        (item) => item.value,
+      );
+    }
+    const queryString = this.mergeParams(caseRequest.params);
+
     if (caseRequest.baseAddress) {
       caseRequest.baseAddress.endpoint = this.urlPretreatment(
         caseRequest.baseAddress.endpoint,
@@ -30,12 +46,20 @@ export class ProprecessService {
         envAndVar,
         (item) => item.value,
       );
+
+      caseRequest.baseAddress.endpoint =
+        caseRequest.baseAddress.endpoint + '?' + queryString;
+      caseRequest.testAddress.endpoint =
+        caseRequest.testAddress.endpoint + '?' + queryString;
     } else {
       caseRequest.address.endpoint = this.urlPretreatment(
         caseRequest.address.endpoint,
         envAndVar,
         (item) => item.value,
       );
+
+      caseRequest.address.endpoint =
+        caseRequest.address.endpoint + '?' + queryString;
     }
 
     caseRequest.body = this.urlPretreatment(
@@ -46,6 +70,11 @@ export class ProprecessService {
 
     for (let index = 0; index < caseRequest.headers.length; index++) {
       const keyvaluepair = caseRequest.headers[index];
+      keyvaluepair.key = this.urlPretreatment(
+        keyvaluepair.key,
+        envAndVar,
+        (item) => item.value,
+      );
       keyvaluepair.value = this.urlPretreatment(
         keyvaluepair.value,
         envAndVar,
@@ -95,5 +124,26 @@ export class ProprecessService {
       }
     }
     return res;
+  }
+
+  private mergeParams(params: Array<KeyValuePairType>) {
+    if (!params || params.length === 0) {
+      return '';
+    }
+
+    const queryString = [];
+    for (let index = 0; index < params.length; index++) {
+      const element = params[index];
+      if (!element || (!element.key && !element.value)) {
+        continue;
+      }
+      queryString.push(
+        (element.key ? element.key : '') +
+          '=' +
+          (element.value ? element.value : ''),
+      );
+    }
+
+    return queryString.join('&');
   }
 }

@@ -86,6 +86,7 @@ export class CaseSendService {
   private buildRequest(caseSendRequest: CaseSendRequest): CaseRequest {
     const caserequest = new CaseRequest();
     caserequest.headers = caseSendRequest.headers;
+    caserequest.params = caseSendRequest.params;
     caserequest.body = caseSendRequest.body;
     caserequest.address = caseSendRequest.address;
     caserequest.baseAddress = caseSendRequest.baseAddress;

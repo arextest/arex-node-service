@@ -93,8 +93,8 @@ export class DoubleCaseHandleService extends CaseHandleService {
   ) {
     caseSendResponse.baseAddress = caseRequest.baseAddress;
     caseSendResponse.testAddress = caseRequest.testAddress;
-
     caseSendResponse.headers = caseRequest.headers;
+    caseSendResponse.params = caseRequest.params;
     caseSendResponse.request = caseRequest.body;
   }
 }

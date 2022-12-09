@@ -69,6 +69,7 @@ export class NoramlCaseHandleService extends CaseHandleService {
   ) {
     caseSendResponse.addresss = caseRequest.address;
     caseSendResponse.headers = caseRequest.headers;
+    caseSendResponse.params = caseRequest.params;
     caseSendResponse.request = caseRequest.body;
   }
 }

@@ -9,6 +9,7 @@ export class PreTestScriptRequest {
   body: string;
   response: string;
   preTestScripts: Array<string>;
+  params: Array<KeyValuePairType>;
 
   baseAddress: Address;
   testAddress: Address;

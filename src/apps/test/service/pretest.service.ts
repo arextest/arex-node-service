@@ -95,6 +95,7 @@ export class PreTestService {
     const pretestscriptresponse = new PreTestScriptResponse();
     pretestscriptresponse.address = caserequest.address;
     pretestscriptresponse.headers = caserequest.headers;
+    pretestscriptresponse.params = caserequest.params;
     pretestscriptresponse.body = pretestscriptresponse.body;
     pretestscriptresponse.baseAddress = caserequest.baseAddress;
     pretestscriptresponse.testAddress = caserequest.testAddress;

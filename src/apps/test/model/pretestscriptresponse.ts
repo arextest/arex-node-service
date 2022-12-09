@@ -7,6 +7,7 @@ import { RunVar } from './runvar';
 export class PreTestScriptResponse {
   address: Address;
   headers: Array<KeyValuePairType>;
+  params: Array<KeyValuePairType>;
   body: string;
   envList: Array<RunEnv>;
   varList: Array<RunVar>;

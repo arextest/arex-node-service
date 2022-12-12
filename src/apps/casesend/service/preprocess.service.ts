@@ -19,20 +19,22 @@ export class ProprecessService {
     }
 
     const envAndVar = this.unitEnvAndVar(envList, varList);
-
-    for (let index = 0; index < caseRequest.params.length; index++) {
-      const param = caseRequest.params[index];
-      param.key = this.urlPretreatment(
-        param.key,
-        envAndVar,
-        (item) => item.value,
-      );
-      param.value = this.urlPretreatment(
-        param.value,
-        envAndVar,
-        (item) => item.value,
-      );
+    if (caseRequest.params) {
+      for (let index = 0; index < caseRequest.params.length; index++) {
+        const param = caseRequest.params[index];
+        param.key = this.urlPretreatment(
+          param.key,
+          envAndVar,
+          (item) => item.value,
+        );
+        param.value = this.urlPretreatment(
+          param.value,
+          envAndVar,
+          (item) => item.value,
+        );
+      }
     }
+
     const queryString = this.mergeParams(caseRequest.params);
 
     if (caseRequest.baseAddress) {
@@ -48,9 +50,9 @@ export class ProprecessService {
       );
 
       caseRequest.baseAddress.endpoint =
-        caseRequest.baseAddress.endpoint + '?' + queryString;
+        caseRequest.baseAddress.endpoint + queryString;
       caseRequest.testAddress.endpoint =
-        caseRequest.testAddress.endpoint + '?' + queryString;
+        caseRequest.testAddress.endpoint + queryString;
     } else {
       caseRequest.address.endpoint = this.urlPretreatment(
         caseRequest.address.endpoint,
@@ -58,8 +60,7 @@ export class ProprecessService {
         (item) => item.value,
       );
 
-      caseRequest.address.endpoint =
-        caseRequest.address.endpoint + '?' + queryString;
+      caseRequest.address.endpoint = caseRequest.address.endpoint + queryString;
     }
 
     caseRequest.body = this.urlPretreatment(
@@ -68,18 +69,20 @@ export class ProprecessService {
       (item) => item.value,
     );
 
-    for (let index = 0; index < caseRequest.headers.length; index++) {
-      const keyvaluepair = caseRequest.headers[index];
-      keyvaluepair.key = this.urlPretreatment(
-        keyvaluepair.key,
-        envAndVar,
-        (item) => item.value,
-      );
-      keyvaluepair.value = this.urlPretreatment(
-        keyvaluepair.value,
-        envAndVar,
-        (item) => item.value,
-      );
+    if (caseRequest.headers) {
+      for (let index = 0; index < caseRequest.headers.length; index++) {
+        const keyvaluepair = caseRequest.headers[index];
+        keyvaluepair.key = this.urlPretreatment(
+          keyvaluepair.key,
+          envAndVar,
+          (item) => item.value,
+        );
+        keyvaluepair.value = this.urlPretreatment(
+          keyvaluepair.value,
+          envAndVar,
+          (item) => item.value,
+        );
+      }
     }
   }
 
@@ -144,6 +147,6 @@ export class ProprecessService {
       );
     }
 
-    return queryString.join('&');
+    return queryString.length === 0 ? '' : '?' + queryString.join('&');
   }
 }

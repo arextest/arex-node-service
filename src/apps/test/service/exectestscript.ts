@@ -154,6 +154,10 @@ class Pw extends TestField {
       resolve(res1);
     });
   }
+
+  sendRequest(config) {
+    return axios(config);
+  }
 }
 
 export function execTestScript(
@@ -166,7 +170,6 @@ export function execTestScript(
       arex: pw,
       console: console,
       JSON: JSON,
-      axios: axios,
     };
 
     const testPromise = vm.runInNewContext(

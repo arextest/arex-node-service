@@ -15,8 +15,11 @@ export class CaseSendController implements OnModuleInit {
   @Post('/casesend')
   async caseSend(@Body() caseSendRequest: CaseSendRequest) {
     try {
-      const caseSendResponse = await this.caseSendService.caseSend(
-        caseSendRequest,
+      this.checkReqParams(caseSendRequest);
+
+      const caseSendResponse = await this.promiseTimeout(
+        this.caseSendService.caseSend(caseSendRequest),
+        caseSendRequest.interfaceTimeout,
       );
       return ResponseUtils.successResponse(caseSendResponse);
     } catch (error) {
@@ -25,5 +28,23 @@ export class CaseSendController implements OnModuleInit {
       caseSendResponse.exceptionMsg = error.message;
       return ResponseUtils.successResponse(caseSendResponse);
     }
+  }
+
+  private checkReqParams(caseSendRequest: CaseSendRequest) {
+    if (!caseSendRequest.interfaceTimeout) {
+      caseSendRequest.interfaceTimeout = 3 * 60 * 1000;
+    }
+    if (!caseSendRequest.sendTimeout) {
+      caseSendRequest.sendTimeout = 90 * 1000;
+    }
+  }
+
+  private promiseTimeout(promise, delay) {
+    const timeout = new Promise(function (reslove, reject) {
+      setTimeout(function () {
+        reject(new Error('time out because of inerfaceTimeout'));
+      }, delay);
+    });
+    return Promise.race([timeout, promise]);
   }
 }

@@ -31,6 +31,7 @@ export class CaseSendService {
         const caseRequest = this.buildRequest(caseSendRequest);
         const preTestScripts = caseSendRequest.preTestScripts;
         const testScript = caseSendRequest.testScript;
+        const sendTimeout = caseSendRequest.sendTimeout;
 
         if (preTestScripts && preTestScripts.length !== 0) {
           const preScriptResult = await this.preTestService.runPreTestScript(
@@ -52,7 +53,10 @@ export class CaseSendService {
         // 发送请求
         const caseHandleService =
           this.caseHandleFactoryService.select(caseRequest);
-        const sendTasks = caseHandleService.buildSendTasks(caseRequest);
+        const sendTasks = caseHandleService.buildSendTasks(
+          caseRequest,
+          sendTimeout,
+        );
 
         const observables = forkJoin([...sendTasks]);
         const res = await new Promise<Array<any>>((resolve, reject) => {

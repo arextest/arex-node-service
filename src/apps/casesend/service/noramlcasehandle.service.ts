@@ -21,13 +21,17 @@ export class NoramlCaseHandleService extends CaseHandleService {
     return caseRequest.baseAddress === undefined;
   }
 
-  public buildSendTasks(caseRequest: CaseRequest): Observable<any>[] {
+  public buildSendTasks(
+    caseRequest: CaseRequest,
+    caseTimeout: number,
+  ): Observable<any>[] {
     const sendTasks = [];
     sendTasks.push(
       this.buildSendTaskSerive.sendRequest(
         caseRequest.headers,
         caseRequest.body,
         caseRequest.address,
+        caseTimeout,
       ),
     );
     return sendTasks;

@@ -16,4 +16,8 @@ export class CaseSendRequest {
 
   envList: Array<RunEnv>;
   varList: Array<RunVar>;
+
+  interfaceTimeout: number;
+
+  sendTimeout: number;
 }

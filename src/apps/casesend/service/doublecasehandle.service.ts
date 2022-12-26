@@ -21,13 +21,17 @@ export class DoubleCaseHandleService extends CaseHandleService {
     return caseRequest.baseAddress !== undefined;
   }
 
-  public buildSendTasks(caseRequest: CaseRequest): Observable<any>[] {
+  public buildSendTasks(
+    caseRequest: CaseRequest,
+    sendTimeout: number,
+  ): Observable<any>[] {
     const sendTasks = [];
     sendTasks.push(
       this.buildSendTaskSerive.sendRequest(
         caseRequest.headers,
         caseRequest.body,
         caseRequest.baseAddress,
+        sendTimeout,
       ),
     );
     sendTasks.push(
@@ -35,6 +39,7 @@ export class DoubleCaseHandleService extends CaseHandleService {
         caseRequest.headers,
         caseRequest.body,
         caseRequest.testAddress,
+        sendTimeout,
       ),
     );
     return sendTasks;

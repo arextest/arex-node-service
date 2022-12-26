@@ -9,7 +9,10 @@ import { CaseStatus } from '../model/casestatus';
 export abstract class CaseHandleService {
   abstract isSupport(caseRequest: CaseRequest): boolean;
 
-  abstract buildSendTasks(caseRequest: CaseRequest): Array<Observable<any>>;
+  abstract buildSendTasks(
+    caseRequest: CaseRequest,
+    sendTimeout: number,
+  ): Array<Observable<any>>;
 
   abstract processSendResponse(
     res: Array<any>,

@@ -14,14 +14,15 @@ export class BuildSendTaskSerive {
     headers: Array<KeyValuePairType>,
     body: string,
     address: Address,
+    sendTimeout: number,
   ): Observable<any> {
     let res: Observable<any> = undefined;
     switch (address.method) {
       case 'GET':
-        res = this.sendGetRequest(headers, body, address);
+        res = this.sendGetRequest(headers, body, address, sendTimeout);
         break;
       case 'POST':
-        res = this.sendPostRequest(headers, body, address);
+        res = this.sendPostRequest(headers, body, address, sendTimeout);
         break;
       default:
         return throwError(() => new Error('the request method not support'));
@@ -33,6 +34,7 @@ export class BuildSendTaskSerive {
     headers: Array<KeyValuePairType>,
     body: string,
     address: Address,
+    sendTimeout: number,
   ): Observable<any> {
     const customHeader = this.getHeaders(headers);
     return this.httpService
@@ -46,7 +48,7 @@ export class BuildSendTaskSerive {
             body: res.data,
           };
         }),
-        timeout(5000),
+        timeout(sendTimeout),
       );
   }
 
@@ -54,6 +56,7 @@ export class BuildSendTaskSerive {
     headers: Array<KeyValuePairType>,
     body: string,
     address: Address,
+    sendTimeout: number,
   ): Observable<any> {
     const customHeader = this.getHeaders(headers);
     return this.httpService
@@ -67,7 +70,7 @@ export class BuildSendTaskSerive {
             body: res.data,
           };
         }),
-        timeout(5000),
+        timeout(sendTimeout),
       );
   }
 

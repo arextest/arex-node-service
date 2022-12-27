@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
+import { PreTestScriptResponse } from '../../test/model/pretestscriptresponse';
 import { CaseResult } from '../../test/model/caseresult';
 import { RunEnv } from '../../test/model/runenv';
 import { RunVar } from '../../test/model/runvar';
@@ -8,6 +9,7 @@ import { CaseRequest } from '../model/caserequest';
 import { CaseSendResponse } from '../model/casesendresponse';
 import { BuildSendTaskSerive } from './buildsendtask.servce';
 import { CaseHandleService } from './casehandle.service';
+import { HeaderHandleUtil } from '../utils/headerhandleutil';
 
 @Injectable()
 export class NoramlCaseHandleService extends CaseHandleService {
@@ -21,13 +23,17 @@ export class NoramlCaseHandleService extends CaseHandleService {
     return caseRequest.baseAddress === undefined;
   }
 
-  public buildSendTasks(caseRequest: CaseRequest): Observable<any>[] {
+  public buildSendTasks(
+    caseRequest: CaseRequest,
+    caseTimeout: number,
+  ): Observable<any>[] {
     const sendTasks = [];
     sendTasks.push(
       this.buildSendTaskSerive.sendRequest(
         caseRequest.headers,
         caseRequest.body,
         caseRequest.address,
+        caseTimeout,
       ),
     );
     return sendTasks;
@@ -40,11 +46,9 @@ export class NoramlCaseHandleService extends CaseHandleService {
     varList: Array<RunVar>,
     testScript: string,
     caseTestResult: CaseResult,
-  ): Promise<CaseSendResponse> {
+  ): Promise<Array<PreTestScriptResponse>> {
     const response = res[0];
 
-    const caseSendResponse = new CaseSendResponse();
-    caseSendResponse.response = JSON.stringify(response.body);
     const testExecResult = await this.preTestService.runPreTestScript(
       req,
       envList,
@@ -52,24 +56,35 @@ export class NoramlCaseHandleService extends CaseHandleService {
       [testScript],
       response,
     );
-
     testExecResult.caseResult.children.push(...caseTestResult.children);
-    caseSendResponse.testResult = JSON.stringify(testExecResult.caseResult);
-    caseSendResponse.caseStatus = this.judgeCaseStatus(
-      testExecResult.caseResult,
-    );
-    caseSendResponse.envList = testExecResult.envList;
-    caseSendResponse.varList = testExecResult.varList;
-    return Promise.resolve(caseSendResponse);
+    return Promise.resolve([testExecResult]);
   }
 
   public backFillRelatedInfo(
     caseSendResponse: CaseSendResponse,
     caseRequest: CaseRequest,
+    res: Array<any>,
+    testExecResultArr: Array<PreTestScriptResponse>,
   ) {
     caseSendResponse.addresss = caseRequest.address;
-    caseSendResponse.headers = caseRequest.headers;
+    caseSendResponse.reqHeaders = caseRequest.headers;
     caseSendResponse.params = caseRequest.params;
     caseSendResponse.request = caseRequest.body;
+    if (res) {
+      const response = res[0];
+      caseSendResponse.headers = HeaderHandleUtil.transformHeader(
+        response.headers,
+      );
+      caseSendResponse.response = JSON.stringify(response.body);
+    }
+    if (testExecResultArr) {
+      const testExecResult = testExecResultArr[0];
+      caseSendResponse.testResult = JSON.stringify(testExecResult.caseResult);
+      caseSendResponse.caseStatus = this.judgeCaseStatus(
+        testExecResult.caseResult,
+      );
+      caseSendResponse.envList = testExecResult.envList;
+      caseSendResponse.varList = testExecResult.varList;
+    }
   }
 }

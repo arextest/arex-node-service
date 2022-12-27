@@ -9,6 +9,8 @@ import { CaseSendRequest } from '../model/casesendrequest';
 import { CaseSendResponse } from '../model/casesendresponse';
 import { CaseHandleFactoryService } from './casehandlefactory.service';
 import { ProprecessService } from './preprocess.service';
+import { ExceptionHandleUtil } from '../utils/exceptionhandleutil';
+import { CaseStatus } from '../model/casestatus';
 
 @Injectable()
 export class CaseSendService {
@@ -22,16 +24,20 @@ export class CaseSendService {
   private readonly caseHandleFactoryService: CaseHandleFactoryService;
 
   async caseSend(caseSendRequest: CaseSendRequest): Promise<CaseSendResponse> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
+      const caseTestResult = new CaseResult('root', [], []);
+
+      let envList = caseSendRequest.envList || new Array<RunEnv>();
+      let varList = caseSendRequest.varList || new Array<RunVar>();
+      const caseRequest = this.buildRequest(caseSendRequest);
+      const preTestScripts = caseSendRequest.preTestScripts;
+      const testScript = caseSendRequest.testScript;
+      const sendTimeout = caseSendRequest.sendTimeout;
+      // 发送请求
+      const caseHandleService =
+        this.caseHandleFactoryService.select(caseRequest);
+
       try {
-        const caseTestResult = new CaseResult('root', [], []);
-
-        let envList = caseSendRequest.envList || new Array<RunEnv>();
-        let varList = caseSendRequest.varList || new Array<RunVar>();
-        const caseRequest = this.buildRequest(caseSendRequest);
-        const preTestScripts = caseSendRequest.preTestScripts;
-        const testScript = caseSendRequest.testScript;
-
         if (preTestScripts && preTestScripts.length !== 0) {
           const preScriptResult = await this.preTestService.runPreTestScript(
             caseRequest,
@@ -39,23 +45,46 @@ export class CaseSendService {
             varList,
             preTestScripts,
           );
+
           caseTestResult.children.push(
             ...(preScriptResult.caseResult.children || []),
           );
           envList = preScriptResult.envList || [];
           varList = preScriptResult.varList || [];
         }
+      } catch (error) {
+        resolve(
+          ExceptionHandleUtil.addException(
+            CaseStatus.PRETEST_EXCEPTION,
+            error.message,
+          ),
+        );
+      }
 
+      try {
         // 预处理request, url, header; 环境变量替换
         this.preprocessService.preprocess(caseRequest, envList, varList);
+      } catch (error) {
+        resolve(
+          ExceptionHandleUtil.addExceptionAndResponse(
+            caseHandleService.backFillRelatedInfo,
+            CaseStatus.PREHANDLE_EXCEPTION,
+            error.message,
+            caseRequest,
+            envList,
+            varList,
+          ),
+        );
+      }
 
-        // 发送请求
-        const caseHandleService =
-          this.caseHandleFactoryService.select(caseRequest);
-        const sendTasks = caseHandleService.buildSendTasks(caseRequest);
-
+      let res = undefined;
+      try {
+        const sendTasks = caseHandleService.buildSendTasks(
+          caseRequest,
+          sendTimeout,
+        );
         const observables = forkJoin([...sendTasks]);
-        const res = await new Promise<Array<any>>((resolve, reject) => {
+        res = await new Promise<Array<any>>((resolve, reject) => {
           observables.subscribe(
             (item) => {
               resolve(item);
@@ -65,8 +94,21 @@ export class CaseSendService {
             },
           );
         });
+      } catch (error) {
+        resolve(
+          ExceptionHandleUtil.addExceptionAndResponse(
+            caseHandleService.backFillRelatedInfo,
+            CaseStatus.SEND_EXCEPTION,
+            error.message,
+            caseRequest,
+            envList,
+            varList,
+          ),
+        );
+      }
 
-        const caseSendResponse = await caseHandleService.processSendResponse(
+      try {
+        const testExecResultArr = await caseHandleService.processSendResponse(
           res,
           caseRequest,
           envList,
@@ -74,11 +116,26 @@ export class CaseSendService {
           testScript,
           caseTestResult,
         );
-        caseHandleService.backFillRelatedInfo(caseSendResponse, caseRequest);
+        const caseSendResponse = new CaseSendResponse();
+        caseHandleService.backFillRelatedInfo(
+          caseSendResponse,
+          caseRequest,
+          res,
+          testExecResultArr,
+        );
         resolve(caseSendResponse);
       } catch (error) {
-        reject(error);
-        return;
+        resolve(
+          ExceptionHandleUtil.addExceptionAndResponse(
+            caseHandleService.backFillRelatedInfo,
+            CaseStatus.TEST_EXCEPTION,
+            error.message,
+            caseRequest,
+            envList,
+            varList,
+            res,
+          ),
+        );
       }
     });
   }

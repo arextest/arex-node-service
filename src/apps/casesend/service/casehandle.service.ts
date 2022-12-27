@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
-import { RunEnv } from 'src/apps/test/model/runenv';
-import { RunVar } from 'src/apps/test/model/runvar';
+import { PreTestScriptResponse } from '../../test/model/pretestscriptresponse';
+import { RunEnv } from '../../test/model/runenv';
+import { RunVar } from '../..//test/model/runvar';
 import { CaseResult } from '../../test/model/caseresult';
 import { CaseRequest } from '../model/caserequest';
 import { CaseSendResponse } from '../model/casesendresponse';
@@ -9,7 +10,10 @@ import { CaseStatus } from '../model/casestatus';
 export abstract class CaseHandleService {
   abstract isSupport(caseRequest: CaseRequest): boolean;
 
-  abstract buildSendTasks(caseRequest: CaseRequest): Array<Observable<any>>;
+  abstract buildSendTasks(
+    caseRequest: CaseRequest,
+    sendTimeout: number,
+  ): Array<Observable<any>>;
 
   abstract processSendResponse(
     res: Array<any>,
@@ -18,11 +22,13 @@ export abstract class CaseHandleService {
     varList: Array<RunVar>,
     testScript: string,
     caseTestResult: CaseResult,
-  ): Promise<CaseSendResponse>;
+  ): Promise<Array<PreTestScriptResponse>>;
 
   abstract backFillRelatedInfo(
     caseSendResponse: CaseSendResponse,
     caseRequest: CaseRequest,
+    res: Array<any>,
+    testExecResult: Array<PreTestScriptResponse>,
   );
 
   judgeCaseStatus(caseResult: CaseResult): number {

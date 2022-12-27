@@ -4,7 +4,15 @@ import { Address } from './address';
 import { KeyValuePairType } from './keyvaluepairType';
 
 export class CaseSendResponse {
-  // 无差异：0，有差异：1，发送异常：2
+  /**
+   * 无差异：0，
+   * 有差异：1，
+   * 其它异常：2，
+   * 前置脚本执行异常：3,
+   * 预处理异常：4
+   * 发送异常：5,
+   * test脚本异常：6
+   */
   caseStatus: number;
   // 填写异常信息
   exceptionMsg: string;
@@ -12,7 +20,9 @@ export class CaseSendResponse {
   // 回填url
   addresss: Address;
 
-  // 回填header
+  // resquest的headers
+  reqHeaders: Array<KeyValuePairType>;
+  // response的headers
   headers: Array<KeyValuePairType>;
 
   // 回填params
@@ -31,6 +41,9 @@ export class CaseSendResponse {
   testAddress: Address;
   baseResponse: string;
   testResponse: string;
+  // response的headers
+  baseHeaders: Array<KeyValuePairType>;
+  testHeaders: Array<KeyValuePairType>;
   baseTestResult: string;
   testTestResult: string;
 }

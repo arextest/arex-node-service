@@ -24,7 +24,7 @@ export class CaseSendController implements OnModuleInit {
       return ResponseUtils.successResponse(caseSendResponse);
     } catch (error) {
       const caseSendResponse = new CaseSendResponse();
-      caseSendResponse.caseStatus = CaseStatus.EXCEPTION;
+      caseSendResponse.caseStatus = CaseStatus.OTHER_EXCEPTION;
       caseSendResponse.exceptionMsg = error.message;
       return ResponseUtils.successResponse(caseSendResponse);
     }

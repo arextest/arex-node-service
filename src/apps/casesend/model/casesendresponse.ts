@@ -4,7 +4,15 @@ import { Address } from './address';
 import { KeyValuePairType } from './keyvaluepairType';
 
 export class CaseSendResponse {
-  // 无差异：0，有差异：1，其它异常：2， 前置脚本执行异常：3, 发送异常：4, test脚本异常：5
+  /**
+   * 无差异：0，
+   * 有差异：1，
+   * 其它异常：2，
+   * 前置脚本执行异常：3,
+   * 预处理异常：4
+   * 发送异常：5,
+   * test脚本异常：6
+   */
   caseStatus: number;
   // 填写异常信息
   exceptionMsg: string;

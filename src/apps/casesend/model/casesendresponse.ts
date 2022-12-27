@@ -12,7 +12,9 @@ export class CaseSendResponse {
   // 回填url
   addresss: Address;
 
-  // 回填header
+  // resquest的headers
+  reqHeaders: Array<KeyValuePairType>;
+  // response的headers
   headers: Array<KeyValuePairType>;
 
   // 回填params
@@ -31,6 +33,9 @@ export class CaseSendResponse {
   testAddress: Address;
   baseResponse: string;
   testResponse: string;
+  // response的headers
+  baseHeaders: Array<KeyValuePairType>;
+  testHeaders: Array<KeyValuePairType>;
   baseTestResult: string;
   testTestResult: string;
 }

@@ -9,7 +9,7 @@ import { CaseSendRequest } from '../model/casesendrequest';
 import { CaseSendResponse } from '../model/casesendresponse';
 import { CaseHandleFactoryService } from './casehandlefactory.service';
 import { ProprecessService } from './preprocess.service';
-import { ExceptionHandleService } from './exceptionhandle.service';
+import { ExceptionHandleUtil } from '../utils/exceptionhandleutil';
 import { CaseStatus } from '../model/casestatus';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class CaseSendService {
   private readonly caseHandleFactoryService: CaseHandleFactoryService;
 
   async caseSend(caseSendRequest: CaseSendRequest): Promise<CaseSendResponse> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       const caseTestResult = new CaseResult('root', [], []);
 
       let envList = caseSendRequest.envList || new Array<RunEnv>();
@@ -56,7 +56,7 @@ export class CaseSendService {
         }
       } catch (error) {
         resolve(
-          ExceptionHandleService.addException(
+          ExceptionHandleUtil.addException(
             CaseStatus.PRETEST_EXCEPTION,
             error.message,
           ),
@@ -68,7 +68,7 @@ export class CaseSendService {
         this.preprocessService.preprocess(caseRequest, envList, varList);
       } catch (error) {
         resolve(
-          ExceptionHandleService.addExceptionAndResponse(
+          ExceptionHandleUtil.addExceptionAndResponse(
             caseHandleService.backFillRelatedInfo,
             CaseStatus.PREHANDLE_EXCEPTION,
             error.message,
@@ -98,7 +98,7 @@ export class CaseSendService {
         });
       } catch (error) {
         resolve(
-          ExceptionHandleService.addExceptionAndResponse(
+          ExceptionHandleUtil.addExceptionAndResponse(
             caseHandleService.backFillRelatedInfo,
             CaseStatus.SEND_EXCEPTION,
             error.message,
@@ -110,7 +110,7 @@ export class CaseSendService {
       }
 
       try {
-        const caseSendResponse = await caseHandleService.processSendResponse(
+        const testExecResultArr = await caseHandleService.processSendResponse(
           res,
           caseRequest,
           envList,
@@ -118,11 +118,17 @@ export class CaseSendService {
           testScript,
           caseTestResult,
         );
-        caseHandleService.backFillRelatedInfo(caseSendResponse, caseRequest);
+        const caseSendResponse = new CaseSendResponse();
+        caseHandleService.backFillRelatedInfo(
+          caseSendResponse,
+          caseRequest,
+          res,
+          testExecResultArr,
+        );
         resolve(caseSendResponse);
       } catch (error) {
         resolve(
-          ExceptionHandleService.addExceptionAndResponse(
+          ExceptionHandleUtil.addExceptionAndResponse(
             caseHandleService.backFillRelatedInfo,
             CaseStatus.TEST_EXCEPTION,
             error.message,

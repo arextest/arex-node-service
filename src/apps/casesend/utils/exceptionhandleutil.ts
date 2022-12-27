@@ -1,10 +1,9 @@
-import { RunEnv } from 'src/apps/test/model/runenv';
-import { RunVar } from 'src/apps/test/model/runvar';
+import { RunEnv } from '../../test/model/runenv';
+import { RunVar } from '../../test/model/runvar';
 import { CaseRequest } from '../model/caserequest';
-import { CaseSendRequest } from '../model/casesendrequest';
 import { CaseSendResponse } from '../model/casesendresponse';
 
-export class ExceptionHandleService {
+export class ExceptionHandleUtil {
   static addException(casestatus: number, message: string): CaseSendResponse {
     const caseSendResponse = new CaseSendResponse();
     caseSendResponse.caseStatus = casestatus;
@@ -24,16 +23,9 @@ export class ExceptionHandleService {
     const caseSendResponse = new CaseSendResponse();
     caseSendResponse.caseStatus = casestatus;
     caseSendResponse.exceptionMsg = message;
-    backFillRelatedInfo(caseSendResponse, caseRequest);
+    backFillRelatedInfo(caseSendResponse, caseRequest, res, undefined);
     caseSendResponse.envList = envList;
     caseSendResponse.varList = varList;
-    if (res && res.length == 1) {
-      caseSendResponse.response = JSON.stringify(res[0].body);
-    }
-    if (res && res.length == 2) {
-      caseSendResponse.baseResponse = JSON.stringify(res[0].body);
-      caseSendResponse.testResponse = JSON.stringify(res[1].body);
-    }
     return caseSendResponse;
   }
 }

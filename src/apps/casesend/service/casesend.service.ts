@@ -39,9 +39,7 @@ export class CaseSendService {
 
       try {
         if (preTestScripts && preTestScripts.length !== 0) {
-          let preScriptResult = undefined;
-
-          preScriptResult = await this.preTestService.runPreTestScript(
+          const preScriptResult = await this.preTestService.runPreTestScript(
             caseRequest,
             envList,
             varList,

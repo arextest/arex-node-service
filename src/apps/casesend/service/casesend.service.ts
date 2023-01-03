@@ -23,121 +23,110 @@ export class CaseSendService {
   @Inject()
   private readonly caseHandleFactoryService: CaseHandleFactoryService;
 
-  async caseSend(caseSendRequest: CaseSendRequest): Promise<CaseSendResponse> {
-    return new Promise(async (resolve) => {
-      const caseTestResult = new CaseResult('root', [], []);
+  async caseSend(caseSendRequest: CaseSendRequest) {
+    const caseTestResult = new CaseResult('root', [], []);
 
-      let envList = caseSendRequest.envList || new Array<RunEnv>();
-      let varList = caseSendRequest.varList || new Array<RunVar>();
-      const caseRequest = this.buildRequest(caseSendRequest);
-      const preTestScripts = caseSendRequest.preTestScripts;
-      const testScript = caseSendRequest.testScript;
-      const sendTimeout = caseSendRequest.sendTimeout;
-      // 发送请求
-      const caseHandleService =
-        this.caseHandleFactoryService.select(caseRequest);
+    let envList = caseSendRequest.envList || new Array<RunEnv>();
+    let varList = caseSendRequest.varList || new Array<RunVar>();
+    const caseRequest = this.buildRequest(caseSendRequest);
+    const preTestScripts = caseSendRequest.preTestScripts;
+    const testScript = caseSendRequest.testScript;
+    const sendTimeout = caseSendRequest.sendTimeout;
+    // 发送请求
+    const caseHandleService = this.caseHandleFactoryService.select(caseRequest);
 
-      try {
-        if (preTestScripts && preTestScripts.length !== 0) {
-          const preScriptResult = await this.preTestService.runPreTestScript(
-            caseRequest,
-            envList,
-            varList,
-            preTestScripts,
-          );
-
-          caseTestResult.children.push(
-            ...(preScriptResult.caseResult.children || []),
-          );
-          envList = preScriptResult.envList || [];
-          varList = preScriptResult.varList || [];
-        }
-      } catch (error) {
-        resolve(
-          ExceptionHandleUtil.addException(
-            CaseStatus.PRETEST_EXCEPTION,
-            error.message,
-          ),
-        );
-      }
-
-      try {
-        // 预处理request, url, header; 环境变量替换
-        this.preprocessService.preprocess(caseRequest, envList, varList);
-      } catch (error) {
-        resolve(
-          ExceptionHandleUtil.addExceptionAndResponse(
-            caseHandleService.backFillRelatedInfo,
-            CaseStatus.PREHANDLE_EXCEPTION,
-            error.message,
-            caseRequest,
-            envList,
-            varList,
-          ),
-        );
-      }
-
-      let res = undefined;
-      try {
-        const sendTasks = caseHandleService.buildSendTasks(
-          caseRequest,
-          sendTimeout,
-        );
-        const observables = forkJoin([...sendTasks]);
-        res = await new Promise<Array<any>>((resolve, reject) => {
-          observables.subscribe(
-            (item) => {
-              resolve(item);
-            },
-            (error) => {
-              reject(error);
-            },
-          );
-        });
-      } catch (error) {
-        resolve(
-          ExceptionHandleUtil.addExceptionAndResponse(
-            caseHandleService.backFillRelatedInfo,
-            CaseStatus.SEND_EXCEPTION,
-            error.message,
-            caseRequest,
-            envList,
-            varList,
-          ),
-        );
-      }
-
-      try {
-        const testExecResultArr = await caseHandleService.processSendResponse(
-          res,
+    try {
+      if (preTestScripts && preTestScripts.length !== 0) {
+        const preScriptResult = await this.preTestService.runPreTestScript(
           caseRequest,
           envList,
           varList,
-          testScript,
-          caseTestResult,
+          preTestScripts,
         );
-        const caseSendResponse = new CaseSendResponse();
-        caseHandleService.backFillRelatedInfo(
-          caseSendResponse,
-          caseRequest,
-          res,
-          testExecResultArr,
+
+        caseTestResult.children.push(
+          ...(preScriptResult.caseResult.children || []),
         );
-        resolve(caseSendResponse);
-      } catch (error) {
-        resolve(
-          ExceptionHandleUtil.addExceptionAndResponse(
-            caseHandleService.backFillRelatedInfo,
-            CaseStatus.TEST_EXCEPTION,
-            error.message,
-            caseRequest,
-            envList,
-            varList,
-            res,
-          ),
-        );
+        envList = preScriptResult.envList || [];
+        varList = preScriptResult.varList || [];
       }
-    });
+    } catch (error) {
+      return ExceptionHandleUtil.addException(
+        CaseStatus.PRETEST_EXCEPTION,
+        error.message,
+      );
+    }
+
+    try {
+      // 预处理request, url, header; 环境变量替换
+      this.preprocessService.preprocess(caseRequest, envList, varList);
+    } catch (error) {
+      return ExceptionHandleUtil.addExceptionAndResponse(
+        caseHandleService.backFillRelatedInfo,
+        CaseStatus.PREHANDLE_EXCEPTION,
+        error.message,
+        caseRequest,
+        envList,
+        varList,
+      );
+    }
+
+    let res = undefined;
+    try {
+      const sendTasks = caseHandleService.buildSendTasks(
+        caseRequest,
+        sendTimeout,
+      );
+      const observables = forkJoin([...sendTasks]);
+      res = await new Promise<Array<any>>((resolve, reject) => {
+        observables.subscribe(
+          (item) => {
+            resolve(item);
+          },
+          (error) => {
+            reject(error);
+          },
+        );
+      });
+    } catch (error) {
+      return ExceptionHandleUtil.addExceptionAndResponse(
+        caseHandleService.backFillRelatedInfo,
+        CaseStatus.SEND_EXCEPTION,
+        error.message,
+        caseRequest,
+        envList,
+        varList,
+      );
+    }
+
+    try {
+      const testExecResultArr = await caseHandleService.processSendResponse(
+        res,
+        caseRequest,
+        envList,
+        varList,
+        testScript,
+        caseTestResult,
+      );
+      const caseSendResponse = new CaseSendResponse();
+      caseHandleService.backFillRelatedInfo(
+        caseSendResponse,
+        caseRequest,
+        res,
+        testExecResultArr,
+      );
+      return caseSendResponse;
+    } catch (error) {
+      return ExceptionHandleUtil.addExceptionAndResponse(
+        caseHandleService.backFillRelatedInfo,
+        CaseStatus.TEST_EXCEPTION,
+        error.message,
+        caseRequest,
+        envList,
+        varList,
+        res,
+      );
+    }
   }
 
   private buildRequest(caseSendRequest: CaseSendRequest): CaseRequest {

@@ -1,30 +1,7 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The node service that unifies execution of third-party JavaScript. To provide the function of AREX-UI's  ```Pre-request Script```
+and ```Testsd```
 
 ## Installation
 
@@ -38,36 +15,133 @@ $ npm install
 # development
 $ npm run start
 
-# watch mode
-$ npm run start:dev
-
 # production mode
 $ npm run start:prod
 ```
 
-## Test
+## Getting Started
 
-```bash
-# unit tests
-$ npm run test
+url：/pTest
 
-# e2e tests
-$ npm run test:e2e
+request:
 
-# test coverage
-$ npm run test:cov
+```json
+{	
+    "address": {
+        // request method
+        "method": "POST",
+        // request url
+        "endpoint": "http://www.baidu.com"
+    },
+    // request headers
+    "headers": [
+        {
+            "key": "Content-Type",
+            "value": "application/json"
+        }
+    ],
+    // request body
+    "body": "{\"key\": \"value\"}",
+    // environments
+    "envList": [
+        {
+            "key": "key",
+            "value": "value"
+        }
+    ],
+    // variables
+    "varList": [
+        {
+            "key": "key",
+            "value": "value"
+        }
+    ],
+    // response
+    "response": "{\"status\":200,\"statusText\":\"\",\"headers\":[{\"key\":\"vary\",\"value\":\"Origin, Access-Control-Request-Method, Access-Control-Request-Headers\"},{\"key\":\"content-type\",\"value\":\"application/json\"},{\"key\":\"transfer-encoding\",\"value\":\"chunked\"},{\"key\":\"date\",\"value\":\"Thu, 05 Jan 2023 02:18:04 GMT\"},{\"key\":\"connection\",\"value\":\"close\"}],\"body\":{\"responseStatusType\":{\"responseCode\":0,\"responseDesc\":\"success\",\"timestamp\":1672885084858},\"body\":{\"id\":\"1234567890123456789\"}}}",
+    // Executing scripts in the sandbox
+    "preTestScripts": [
+        "let response = await arex.sendRequest({\"method\":\"GET\",\"url\":\"http://www.baidu.com\"});"
+    ]
+}
 ```
 
-## Support
+response
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```java
+{
+    "responseStatusType": {
+        "responseCode": 0,
+        "responseDesc": "success",
+        "timestamp": 1672901036000
+    },
+    "body": {
+        "address": {
+            "method": "POST",
+            "endpoint": "http://www.baidu.com"
+        },
+        "headers": [
+            {
+                "key": "Content-Type",
+                "value": "application/json"
+            }
+        ],
+        "body": "{\"key\":\"value\"}",
+        "envList": [
+            {
+                "key": "key",
+                "value": "value"
+            }
+        ],
+        "varList": [
+            {
+                "key": "key",
+                "value": "value"
+            }
+        ],
+        // the results of validation 
+        "caseResult": {
+            "descriptor": "root",
+            "expectResults": [],
+            "children": []
+        }
+    }
+}
+```
 
-## Stay in touch
+## Sandbox Environment
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The following section outlines the API available inside sandbox scripts
 
-## License
+- arex.environment
+- arex.variables
+- arex.request
+- arex.response
+- arex.sendRequest
+- arex.executeMySql
+- arex.test
+- arex.expect
+- arex.toBe
+- arex.toBeLevel2xx
 
-Nest is [MIT licensed](LICENSE).
+## LICESE
+
+```md
+Copyright (C) 2022 ArexTest
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see https://www.gnu.org/licenses/.
+```
+
+
+
+

@@ -4,7 +4,8 @@ import { AxiosRequestHeaders } from 'axios';
 import { map, Observable, throwError, timeout } from 'rxjs';
 import { Address } from '../model/address';
 import { KeyValuePairType } from '../model/keyvaluepairType';
-
+import { HeaderHandleUtil } from '../utils/headerhandleutil';
+const JSONBig = require('json-bigint');
 @Injectable()
 export class BuildSendTaskSerive {
   @Inject()
@@ -38,13 +39,28 @@ export class BuildSendTaskSerive {
   ): Observable<any> {
     const customHeader = this.getHeaders(headers);
     return this.httpService
-      .get(address.endpoint, { headers: customHeader })
+      .get(address.endpoint, {
+        headers: customHeader,
+        transformResponse: (data: any, headers: any) => {
+          if (
+            typeof data === 'string' &&
+            headers['content-type'] === 'application/json'
+          ) {
+            try {
+              data = JSONBig.parse(data);
+            } catch (e) {
+              /* Ignore */
+            }
+          }
+          return data;
+        },
+      })
       .pipe(
         map((res) => {
           return {
             status: res.status,
             statusText: res.statusText,
-            headers: res.headers,
+            headers: HeaderHandleUtil.transformHeader(res.headers),
             body: res.data,
           };
         }),
@@ -60,13 +76,28 @@ export class BuildSendTaskSerive {
   ): Observable<any> {
     const customHeader = this.getHeaders(headers);
     return this.httpService
-      .post(address.endpoint, body, { headers: customHeader })
+      .post(address.endpoint, body, {
+        headers: customHeader,
+        transformResponse: (data: any, headers: any) => {
+          if (
+            typeof data === 'string' &&
+            headers['content-type'] === 'application/json'
+          ) {
+            try {
+              data = JSONBig.parse(data);
+            } catch (e) {
+              /* Ignore */
+            }
+          }
+          return data;
+        },
+      })
       .pipe(
         map((res) => {
           return {
             status: res.status,
             statusText: res.statusText,
-            headers: res.headers,
+            headers: HeaderHandleUtil.transformHeader(res.headers),
             body: res.data,
           };
         }),

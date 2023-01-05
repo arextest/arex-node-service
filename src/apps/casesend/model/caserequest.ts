@@ -5,7 +5,8 @@ export class CaseRequest {
   address: Address;
   headers: Array<KeyValuePairType>;
   params: Array<KeyValuePairType>;
-  body: string;
+  body: object;
+  originBody: string;
   baseAddress: Address;
   testAddress: Address;
 }

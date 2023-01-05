@@ -7,7 +7,7 @@ import { PreTestScriptResponse } from '../model/pretestscriptresponse';
 import { RunEnv } from '../model/runenv';
 import { RunVar } from '../model/runvar';
 import { TestService } from './test.service';
-
+const JSONBig = require('json-bigint');
 @Injectable()
 export class PreTestService {
   @Inject()
@@ -18,7 +18,7 @@ export class PreTestService {
     envList: Array<RunEnv>,
     varList: Array<RunVar>,
     preTestScripts: Array<string>,
-    response?: string,
+    response?: object,
   ): Promise<PreTestScriptResponse> {
     return new Promise(async (resolve, reject) => {
       const multiScriptresult = new ExecScriptResult();
@@ -96,7 +96,7 @@ export class PreTestService {
     pretestscriptresponse.address = caserequest.address;
     pretestscriptresponse.headers = caserequest.headers;
     pretestscriptresponse.params = caserequest.params;
-    pretestscriptresponse.body = pretestscriptresponse.body;
+    pretestscriptresponse.body = JSONBig.stringify(caserequest.body);
     pretestscriptresponse.baseAddress = caserequest.baseAddress;
     pretestscriptresponse.testAddress = caserequest.testAddress;
     pretestscriptresponse.envList = this.envMap2RunEnvList(

@@ -4,7 +4,7 @@ import { ResponseUtils } from '../../utils/responseutils';
 import { PreTestScriptRequest } from '../model/pretestscriptrequest';
 import { PreTestService } from '../service/pretest.service';
 import { TestService } from '../service/test.service';
-
+const JSONBig = require('json-bigint');
 @Controller()
 export class TestController {
   @Inject()
@@ -25,16 +25,14 @@ export class TestController {
 
     const caseRequest = this.buildRequest(preTestScriptRequest);
     try {
-      const PreTestScriptResponse = await this.preTestService.runPreTestScript(
+      const preTestScriptResponse = await this.preTestService.runPreTestScript(
         caseRequest,
         preTestScriptRequest.envList,
         preTestScriptRequest.varList,
         preTestScriptRequest.preTestScripts,
-        preTestScriptRequest.response
-          ? JSON.parse(preTestScriptRequest.response)
-          : preTestScriptRequest.response,
+        this.buildRespponse(preTestScriptRequest.response),
       );
-      return ResponseUtils.successResponse(PreTestScriptResponse);
+      return ResponseUtils.successResponse(preTestScriptResponse);
     } catch (error) {
       return ResponseUtils.exceptionResponse(error.message);
     }
@@ -47,9 +45,23 @@ export class TestController {
     caserequest.address = preTestScriptRequest.address;
     caserequest.headers = preTestScriptRequest.headers;
     caserequest.params = preTestScriptRequest.params;
-    caserequest.body = preTestScriptRequest.body;
+    caserequest.body = preTestScriptRequest.body
+      ? JSONBig.parse(preTestScriptRequest.body)
+      : undefined;
+    caserequest.originBody = preTestScriptRequest.body;
     caserequest.baseAddress = preTestScriptRequest.baseAddress;
     caserequest.testAddress = preTestScriptRequest.testAddress;
     return caserequest;
+  }
+
+  private buildRespponse(response) {
+    if (!response) {
+      return response;
+    }
+    const res = JSONBig.parse(response);
+    if (res && res.body) {
+      res.originBody = JSONBig.stringify(res.body);
+    }
+    return res;
   }
 }

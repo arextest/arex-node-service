@@ -3,7 +3,7 @@ import { RunEnv } from '../../test/model/runenv';
 import { RunVar } from '../../test/model/runvar';
 import { CaseRequest } from '../model/caserequest';
 import { KeyValuePairType } from '../model/keyvaluepairType';
-
+const JSONBig = require('json-bigint');
 @Injectable()
 export class ProprecessService {
   preprocess(
@@ -63,11 +63,14 @@ export class ProprecessService {
       caseRequest.address.endpoint = caseRequest.address.endpoint + queryString;
     }
 
-    caseRequest.body = this.urlPretreatment(
-      caseRequest.body,
+    caseRequest.originBody = this.urlPretreatment(
+      caseRequest.originBody,
       envAndVar,
       (item) => item.value,
     );
+    caseRequest.body = caseRequest.originBody
+      ? JSONBig.parse(caseRequest.originBody)
+      : undefined;
 
     if (caseRequest.headers) {
       for (let index = 0; index < caseRequest.headers.length; index++) {

@@ -11,7 +11,7 @@ import { CaseHandleFactoryService } from './casehandlefactory.service';
 import { ProprecessService } from './preprocess.service';
 import { ExceptionHandleUtil } from '../utils/exceptionhandleutil';
 import { CaseStatus } from '../model/casestatus';
-
+const JSONBig = require('json-bigint');
 @Injectable()
 export class CaseSendService {
   @Inject()
@@ -133,7 +133,10 @@ export class CaseSendService {
     const caserequest = new CaseRequest();
     caserequest.headers = caseSendRequest.headers;
     caserequest.params = caseSendRequest.params;
-    caserequest.body = caseSendRequest.body;
+    caserequest.body = caseSendRequest.body
+      ? JSONBig.parse(caseSendRequest.body)
+      : undefined;
+    caserequest.originBody = caseSendRequest.body;
     caserequest.address = caseSendRequest.address;
     caserequest.baseAddress = caseSendRequest.baseAddress;
     caserequest.testAddress = caseSendRequest.testAddress;

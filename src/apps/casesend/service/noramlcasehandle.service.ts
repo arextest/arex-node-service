@@ -9,7 +9,6 @@ import { CaseRequest } from '../model/caserequest';
 import { CaseSendResponse } from '../model/casesendresponse';
 import { BuildSendTaskSerive } from './buildsendtask.servce';
 import { CaseHandleService } from './casehandle.service';
-import { HeaderHandleUtil } from '../utils/headerhandleutil';
 
 @Injectable()
 export class NoramlCaseHandleService extends CaseHandleService {
@@ -31,7 +30,7 @@ export class NoramlCaseHandleService extends CaseHandleService {
     sendTasks.push(
       this.buildSendTaskSerive.sendRequest(
         caseRequest.headers,
-        caseRequest.body,
+        caseRequest.originBody,
         caseRequest.address,
         caseTimeout,
       ),
@@ -48,7 +47,7 @@ export class NoramlCaseHandleService extends CaseHandleService {
     caseTestResult: CaseResult,
   ): Promise<Array<PreTestScriptResponse>> {
     const response = res[0];
-
+    this.addOriginResponse(response);
     const testExecResult = await this.preTestService.runPreTestScript(
       req,
       envList,
@@ -69,13 +68,11 @@ export class NoramlCaseHandleService extends CaseHandleService {
     caseSendResponse.addresss = caseRequest.address;
     caseSendResponse.reqHeaders = caseRequest.headers;
     caseSendResponse.params = caseRequest.params;
-    caseSendResponse.request = caseRequest.body;
+    caseSendResponse.request = caseRequest.originBody;
     if (res) {
       const response = res[0];
-      caseSendResponse.headers = HeaderHandleUtil.transformHeader(
-        response.headers,
-      );
-      caseSendResponse.response = JSON.stringify(response.body);
+      caseSendResponse.headers = response.headers;
+      caseSendResponse.response = response.originBody;
     }
     if (testExecResultArr) {
       const testExecResult = testExecResultArr[0];

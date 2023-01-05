@@ -9,7 +9,6 @@ import { CaseRequest } from '../model/caserequest';
 import { CaseSendResponse } from '../model/casesendresponse';
 import { BuildSendTaskSerive } from './buildsendtask.servce';
 import { CaseHandleService } from './casehandle.service';
-import { HeaderHandleUtil } from '../utils/headerhandleutil';
 
 @Injectable()
 export class DoubleCaseHandleService extends CaseHandleService {
@@ -31,7 +30,7 @@ export class DoubleCaseHandleService extends CaseHandleService {
     sendTasks.push(
       this.buildSendTaskSerive.sendRequest(
         caseRequest.headers,
-        caseRequest.body,
+        caseRequest.originBody,
         caseRequest.baseAddress,
         sendTimeout,
       ),
@@ -39,7 +38,7 @@ export class DoubleCaseHandleService extends CaseHandleService {
     sendTasks.push(
       this.buildSendTaskSerive.sendRequest(
         caseRequest.headers,
-        caseRequest.body,
+        caseRequest.originBody,
         caseRequest.testAddress,
         sendTimeout,
       ),
@@ -57,6 +56,9 @@ export class DoubleCaseHandleService extends CaseHandleService {
   ): Promise<Array<PreTestScriptResponse>> {
     const baseResponse = res[0];
     const testResponse = res[1];
+
+    this.addOriginResponse(baseResponse);
+    this.addOriginResponse(testResponse);
 
     const baseTestExecResult = await this.preTestService.runPreTestScript(
       req,
@@ -88,19 +90,15 @@ export class DoubleCaseHandleService extends CaseHandleService {
     caseSendResponse.testAddress = caseRequest.testAddress;
     caseSendResponse.headers = caseRequest.headers;
     caseSendResponse.params = caseRequest.params;
-    caseSendResponse.request = caseRequest.body;
+    caseSendResponse.request = caseRequest.originBody;
 
     if (res) {
       const baseResponse = res[0];
       const testResponse = res[1];
-      caseSendResponse.baseHeaders = HeaderHandleUtil.transformHeader(
-        baseResponse.headers,
-      );
-      caseSendResponse.baseResponse = JSON.stringify(baseResponse.body);
-      caseSendResponse.testHeaders = HeaderHandleUtil.transformHeader(
-        testResponse.headers,
-      );
-      caseSendResponse.testResponse = JSON.stringify(testResponse.body);
+      caseSendResponse.baseHeaders = baseResponse.headers;
+      caseSendResponse.baseResponse = baseResponse.originBody;
+      caseSendResponse.testHeaders = testResponse.headers;
+      caseSendResponse.testResponse = testResponse.originBody;
     }
 
     if (testExecResultArr) {

@@ -6,7 +6,7 @@ import { CaseResult } from '../../test/model/caseresult';
 import { CaseRequest } from '../model/caserequest';
 import { CaseSendResponse } from '../model/casesendresponse';
 import { CaseStatus } from '../model/casestatus';
-
+const JSONBig = require('json-bigint');
 export abstract class CaseHandleService {
   abstract isSupport(caseRequest: CaseRequest): boolean;
 
@@ -46,5 +46,11 @@ export abstract class CaseHandleService {
       }
     }
     return caseStatus;
+  }
+
+  addOriginResponse(response) {
+    if (response && response.body) {
+      response.originBody = JSONBig.stringify(response.body);
+    }
   }
 }

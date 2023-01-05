@@ -25,7 +25,7 @@ url：/pTest
 
 request:
 
-```json
+```txt
 {	
     "address": {
         // request method
@@ -67,7 +67,7 @@ request:
 
 response
 
-```java
+```txt
 {
     "responseStatusType": {
         "responseCode": 0,
